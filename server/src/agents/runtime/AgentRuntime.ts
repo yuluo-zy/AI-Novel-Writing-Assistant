@@ -11,14 +11,21 @@ import type {
   ToolCall,
 } from "../types";
 import { ApprovalContinuationService } from "./ApprovalContinuationService";
+import { PlanExecutionService } from "./PlanExecutionService";
 import { RunExecutionService } from "./RunExecutionService";
+import { AgentPlanStore } from "../store/AgentPlanStore";
 import { withSharedRunLock } from "./runLocks";
+import { summarizeDynamicExecutionState } from "./dynamicExecutionState";
 import { normalizeAgent, parseRunMetadata, safeJson, TERMINAL_STATUSES, isRecord, asObject, type RunMetadata } from "./runtimeHelpers";
 
 export class AgentRuntime {
   private readonly store = new AgentTraceStore();
 
   private readonly executor = new RunExecutionService(this.store);
+
+  private readonly planStore = new AgentPlanStore();
+
+  private readonly planExecutor = new PlanExecutionService(this.executor, this.store, this.planStore);
 
   private readonly approvals = new ApprovalContinuationService(this.store, this.executor);
 
@@ -65,7 +72,12 @@ export class AgentRuntime {
     });
   }
 
-  private async updateRunMetadata(runId: string, input: AgentRunStartInput, plannerIntent?: StructuredIntent): Promise<void> {
+  private async updateRunMetadata(
+    runId: string,
+    input: AgentRunStartInput,
+    plannerIntent?: StructuredIntent,
+    metadataPatch?: Partial<RunMetadata>,
+  ): Promise<void> {
     const metadata: RunMetadata = {
       contextMode: input.contextMode,
       provider: input.provider,
@@ -74,6 +86,7 @@ export class AgentRuntime {
       maxTokens: input.maxTokens,
       messages: input.messages?.slice(-30),
       plannerIntent,
+      ...metadataPatch,
     };
     await this.store.updateRun(runId, {
       metadataJson: safeJson(metadata),
@@ -172,7 +185,13 @@ export class AgentRuntime {
         await this.failRun(run.id, message, "Planner", callbacks);
         throw error;
       }
-      await this.updateRunMetadata(run.id, input, planner.structuredIntent);
+      await this.updateRunMetadata(run.id, input, planner.structuredIntent, {
+        orchestrationMode: planner.dynamicPlan ? "dynamic" : "static",
+        dynamicExecutionState: summarizeDynamicExecutionState({
+          dynamicPlan: planner.dynamicPlan,
+          mode: planner.dynamicPlan ? "dynamic" : "static",
+        }),
+      });
 
       await this.store.addStep({
         runId: run.id,
@@ -203,22 +222,124 @@ export class AgentRuntime {
         });
       }
 
-      return this.executor.runActionPlan(
-        run.id,
-        input.goal,
-        planner.actions,
-        {
-          contextMode: input.contextMode,
-          novelId: input.novelId,
-          provider: input.provider,
-          model: input.model,
-          temperature: input.temperature,
-          maxTokens: input.maxTokens,
-        },
-        planner.structuredIntent,
-        this.failRun.bind(this),
-        callbacks,
-      );
+      if (!planner.dynamicPlan) {
+        return this.executor.runActionPlan(
+          run.id,
+          input.goal,
+          planner.actions,
+          {
+            contextMode: input.contextMode,
+            novelId: input.novelId,
+            worldId: input.worldId,
+            provider: input.provider,
+            model: input.model,
+            temperature: input.temperature,
+            maxTokens: input.maxTokens,
+          },
+          planner.structuredIntent,
+          this.failRun.bind(this),
+          callbacks,
+        );
+      }
+
+      let dynamicPlan = planner.dynamicPlan;
+      let replanCount = 0;
+      await this.planExecutor.saveInitialPlan(run.id, dynamicPlan);
+
+      while (true) {
+        const phaseResult = await this.planExecutor.executeCurrentPhase(
+          dynamicPlan,
+          run.id,
+          input.goal,
+          {
+            contextMode: input.contextMode,
+            novelId: input.novelId,
+            worldId: input.worldId,
+            provider: input.provider,
+            model: input.model,
+            temperature: input.temperature,
+            maxTokens: input.maxTokens,
+          },
+          planner.structuredIntent,
+          this.failRun.bind(this),
+          callbacks,
+        );
+        dynamicPlan = phaseResult.updatedPlan;
+
+        if (phaseResult.waitingForApproval) {
+          await this.updateRunMetadata(run.id, input, planner.structuredIntent, {
+            orchestrationMode: "dynamic",
+            dynamicExecutionState: summarizeDynamicExecutionState({
+              dynamicPlan,
+              waitingForApproval: true,
+              mode: "dynamic",
+            }),
+          });
+          return phaseResult.executionResult;
+        }
+
+        if (phaseResult.replanTrigger) {
+          replanCount += 1;
+          if (replanCount >= 3) {
+            await this.planStore.supersedePlan(run.id, dynamicPlan.version);
+            await this.updateRunMetadata(run.id, input, planner.structuredIntent, {
+              orchestrationMode: "dynamic_fallback_static",
+              dynamicExecutionState: summarizeDynamicExecutionState({
+                mode: "dynamic_fallback_static",
+                fallbackReason: phaseResult.replanTrigger.detail,
+                replanTrigger: phaseResult.replanTrigger,
+              }),
+            });
+            return this.executor.runActionPlan(
+              run.id,
+              input.goal,
+              planner.plan.actions.map((action) => ({
+                agent: normalizeAgent(action.agent),
+                reasoning: action.reason,
+                calls: [{
+                  tool: action.tool as ToolCall["tool"],
+                  reason: action.reason,
+                  idempotencyKey: action.idempotencyKey,
+                  input: action.input,
+                }],
+              })),
+              {
+                contextMode: input.contextMode,
+                novelId: input.novelId,
+                worldId: input.worldId,
+                provider: input.provider,
+                model: input.model,
+                temperature: input.temperature,
+                maxTokens: input.maxTokens,
+              },
+              planner.structuredIntent,
+              this.failRun.bind(this),
+              callbacks,
+            );
+          }
+          await this.updateRunMetadata(run.id, input, planner.structuredIntent, {
+            orchestrationMode: "dynamic",
+            dynamicExecutionState: summarizeDynamicExecutionState({
+              dynamicPlan,
+              mode: "dynamic",
+              replanTrigger: phaseResult.replanTrigger,
+            }),
+          });
+          continue;
+        }
+
+        await this.updateRunMetadata(run.id, input, planner.structuredIntent, {
+          orchestrationMode: "dynamic",
+          dynamicExecutionState: summarizeDynamicExecutionState({
+            dynamicPlan,
+            mode: "dynamic",
+          }),
+        });
+
+        if (!this.planExecutor.hasMorePhases(dynamicPlan)) {
+          return phaseResult.executionResult;
+        }
+      }
     });
   }
 

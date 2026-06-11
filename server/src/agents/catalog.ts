@@ -1,5 +1,6 @@
 import type { AgentCatalog, AgentCatalogAgent } from "@ai-novel/shared/types/agent";
-import { getPermissionMatrixSummary } from "./approvalPolicy";
+import { canAgentUseTool, getPermissionMatrixSummary } from "./approvalPolicy";
+import type { AgentToolName } from "./types";
 import { listAgentToolDefinitions } from "./toolRegistry";
 
 const DOMAIN_AGENTS: AgentCatalogAgent[] = [
@@ -98,6 +99,20 @@ function inferFollowupActions(toolName: string): string[] {
     return ["继续总结", "发起重写", "检查冲突"];
   }
   return ["继续追问", "打开对应模块"];
+}
+
+export function buildPlannerToolCatalog(): string {
+  return listAgentToolDefinitions()
+    .filter((tool) => canAgentUseTool("Planner", tool.name as AgentToolName))
+    .map((t) =>
+      `TOOL: ${t.name}\n` +
+      `  description: ${t.description}\n` +
+      `  category: ${t.category}\n` +
+      `  risk: ${t.riskLevel}\n` +
+      `  approval: ${t.approvalRequired}\n` +
+      `  inputs: ${t.inputSchemaSummary.join(", ") || "none"}`,
+    )
+    .join("\n\n");
 }
 
 export function buildAgentCatalog(): AgentCatalog {

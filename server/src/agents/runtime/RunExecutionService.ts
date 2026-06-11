@@ -241,12 +241,24 @@ export class RunExecutionService {
     context: Omit<ToolExecutionContext, "runId" | "agentName">,
     plannedActions: PlannedAction[],
     structuredIntent?: StructuredIntent,
+    dynamic?: {
+      dynamicPlan?: StructuredIntent extends never ? never : import("@ai-novel/shared/types/dynamicPlan").DynamicWorkflowPlan;
+      orchestrationMode?: import("@ai-novel/shared/types/agent").AgentOrchestrationMode;
+      replanCount?: number;
+      fallbackReason?: string;
+      replanTrigger?: import("@ai-novel/shared/types/dynamicPlan").ReplanTrigger;
+    },
   ): string {
     const payload: SerializedContinuationPayload = {
       goal,
       structuredIntent,
       context,
       plannedActions,
+      dynamicPlan: dynamic?.dynamicPlan,
+      orchestrationMode: dynamic?.orchestrationMode,
+      replanCount: dynamic?.replanCount,
+      fallbackReason: dynamic?.fallbackReason,
+      replanTrigger: dynamic?.replanTrigger,
     };
     return safeJson(payload);
   }
@@ -259,6 +271,13 @@ export class RunExecutionService {
     structuredIntent: StructuredIntent | undefined,
     failRun: (runId: string, message: string, agentName: string, callbacks?: AgentRuntimeCallbacks) => Promise<void>,
     callbacks?: AgentRuntimeCallbacks,
+    executionMetadata?: {
+      dynamicPlan?: import("@ai-novel/shared/types/dynamicPlan").DynamicWorkflowPlan;
+      orchestrationMode?: import("@ai-novel/shared/types/agent").AgentOrchestrationMode;
+      replanCount?: number;
+      fallbackReason?: string;
+      replanTrigger?: import("@ai-novel/shared/types/dynamicPlan").ReplanTrigger;
+    },
   ): Promise<AgentRuntimeResult> {
     const allResults: ToolExecutionResult[] = [];
     let currentContext = { ...context };
@@ -378,7 +397,7 @@ export class RunExecutionService {
             targetId: approvalDecision.targetId ?? "unknown",
             diffSummary,
             expiresAt: new Date(Date.now() + APPROVAL_TTL_MS),
-            payloadJson: this.buildApprovalPayload(goal, currentContext, continuationActions, structuredIntent),
+            payloadJson: this.buildApprovalPayload(goal, currentContext, continuationActions, structuredIntent, executionMetadata),
           });
           await this.store.updateRun(runId, {
             status: "waiting_approval",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { AgentStep } from "@ai-novel/shared/types/agent";
+import type { AgentStep, DynamicExecutionStateSummary } from "@ai-novel/shared/types/agent";
 import KnowledgeDocumentPicker from "@/components/knowledge/KnowledgeDocumentPicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,6 +68,7 @@ interface RuntimeSidebarProps {
   hasLiveEvents: boolean;
   safePreview: (json: string | null | undefined) => string;
   stepTitle: (step: AgentStep) => string;
+  orchestration?: DynamicExecutionStateSummary | null;
 }
 
 function stepStatusTone(status: string): string {
@@ -76,6 +77,17 @@ function stepStatusTone(status: string): string {
   if (status === "pending") return "border-amber-200 bg-amber-50";
   if (status === "running") return "border-blue-200 bg-blue-50";
   return "border-slate-200 bg-slate-50";
+}
+
+function orchestrationModeLabel(mode: DynamicExecutionStateSummary["mode"]): string {
+  switch (mode) {
+    case "dynamic":
+      return "动态编排";
+    case "dynamic_fallback_static":
+      return "动态失败后转静态";
+    default:
+      return "静态编排";
+  }
 }
 
 export default function RuntimeSidebar({
@@ -116,6 +128,7 @@ export default function RuntimeSidebar({
   hasLiveEvents,
   safePreview,
   stepTitle,
+  orchestration,
 }: RuntimeSidebarProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>("console");
 
@@ -216,6 +229,22 @@ export default function RuntimeSidebar({
                 ) : null}
               </div>
             </div>
+
+            {orchestration ? (
+              <div className="rounded-xl border border-slate-200 bg-white p-3">
+                <div className="mb-2 text-xs font-medium tracking-wide text-slate-500">编排状态</div>
+                <div className="space-y-2 text-xs text-slate-700">
+                  <div>模式：{orchestrationModeLabel(orchestration.mode)}</div>
+                  {orchestration.currentPhase ? <div>当前阶段：{orchestration.currentPhase}</div> : null}
+                  {orchestration.currentStep ? <div>当前步骤：{orchestration.currentStep}</div> : null}
+                  {typeof orchestration.remainingPhaseCount === "number" ? <div>剩余阶段：{orchestration.remainingPhaseCount}</div> : null}
+                  {typeof orchestration.remainingStepCount === "number" ? <div>剩余步骤：{orchestration.remainingStepCount}</div> : null}
+                  {orchestration.lastReplanReason ? <div>最近重规划：{orchestration.lastReplanReason}</div> : null}
+                  {orchestration.fallbackReason ? <div>回退原因：{orchestration.fallbackReason}</div> : null}
+                  {orchestration.waitingForApproval ? <div>状态：等待审批</div> : null}
+                </div>
+              </div>
+            ) : null}
 
             <div className="rounded-xl border border-slate-200 bg-white p-3">
               <div className="mb-2 flex items-center justify-between">
@@ -349,7 +378,7 @@ export default function RuntimeSidebar({
                     onChange={onKnowledgeDocumentIdsChange}
                     title="知识文档"
                     description={enableRag
-                      ? "留空将自动解析，也可手动选择文档限制检索范围。"
+                      ? "留空将自动决策，也可手动选择文档限制检索范围。"
                       : "RAG 当前已禁用，请先在上方启用后再使用文档检索。"}
                     allowAuto
                     queryStatus="enabled"

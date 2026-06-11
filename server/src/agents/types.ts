@@ -256,8 +256,9 @@ export interface PlannerResult {
   structuredIntent: StructuredIntent;
   plan: AgentPlan;
   actions: PlannedAction[];
-  source: "llm";
+  source: "llm" | "llm_dynamic";
   validationWarnings: string[];
+  dynamicPlan?: import("@ai-novel/shared/types/dynamicPlan").DynamicWorkflowPlan;
 }
 
 export class AgentToolError extends Error {
@@ -269,3 +270,12 @@ export class AgentToolError extends Error {
     this.name = "AgentToolError";
   }
 }
+
+export type {
+  DynamicWorkflowPlan,
+  DynamicPlanStep,
+  DynamicPlanPhase,
+  DynamicPlanStatus,
+  DynamicStepStatus,
+  ReplanTrigger,
+} from "@ai-novel/shared/types/dynamicPlan";

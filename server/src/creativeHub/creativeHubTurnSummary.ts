@@ -1,3 +1,4 @@
+import { summarizeDynamicExecutionState } from "../agents/runtime/dynamicExecutionState";
 import { asObject, summarizeOutput } from "../agents/runtime/runtimeHelpers";
 import type { AgentRuntimeResult, PlannerResult, StructuredIntent } from "../agents/types";
 import type { ProductionStatusResult } from "../services/novel/NovelProductionStatusService";
@@ -8,6 +9,7 @@ import type {
   CreativeHubTurnStatus,
   CreativeHubTurnSummary,
 } from "@ai-novel/shared/types/creativeHub";
+import type { DynamicWorkflowPlan, ReplanTrigger } from "@ai-novel/shared/types/dynamicPlan";
 
 function truncateText(value: string, max = 180): string {
   const normalized = value.replace(/\s+/g, " ").trim();
@@ -225,6 +227,8 @@ export function buildCreativeHubTurnSummary(input: {
   executionResult: AgentRuntimeResult | null;
   interrupts: CreativeHubInterrupt[];
   productionStatus?: ProductionStatusResult | null;
+  dynamicPlan?: DynamicWorkflowPlan | null;
+  replanContext?: ReplanTrigger | null;
 }): CreativeHubTurnSummary | null {
   const executionResult = input.executionResult;
   const runId = executionResult?.run.id;
@@ -237,6 +241,10 @@ export function buildCreativeHubTurnSummary(input: {
     return null;
   }
   const toolSummaries = extractToolSummaries(executionResult.steps);
+
+  const dynamicPlan = input.dynamicPlan;
+  const currentPhase = dynamicPlan?.phases[dynamicPlan.currentPhaseIndex];
+  const currentStep = currentPhase?.candidateSteps[dynamicPlan.currentStepPointer.stepIndex];
 
   return {
     runId,
@@ -253,5 +261,17 @@ export function buildCreativeHubTurnSummary(input: {
       input.interrupts,
       input.productionStatus,
     ),
+    currentPlanPhase: currentPhase?.objective,
+    currentStepDescription: currentStep?.expectedOutput,
+    waitReason: input.interrupts.length > 0 ? input.interrupts[0]?.summary : undefined,
+    lastReplanReason: input.replanContext
+      ? `${input.replanContext.condition}: ${input.replanContext.detail}`
+      : undefined,
+    orchestration: summarizeDynamicExecutionState({
+      dynamicPlan,
+      waitingForApproval: input.interrupts.length > 0,
+      replanTrigger: input.replanContext ?? undefined,
+      mode: dynamicPlan ? "dynamic" : "static",
+    }),
   };
 }

@@ -138,6 +138,13 @@ export class ApprovalContinuationService {
           payload.structuredIntent,
           failRun,
           callbacks,
+          {
+            dynamicPlan: payload.dynamicPlan,
+            orchestrationMode: payload.orchestrationMode,
+            replanCount: payload.replanCount,
+            fallbackReason: payload.fallbackReason,
+            replanTrigger: payload.replanTrigger,
+          },
         );
       }
 
@@ -162,6 +169,13 @@ export class ApprovalContinuationService {
         payload.structuredIntent,
         failRun,
         callbacks,
+        {
+          dynamicPlan: payload.dynamicPlan,
+          orchestrationMode: payload.orchestrationMode,
+          replanCount: payload.replanCount,
+          fallbackReason: payload.fallbackReason,
+          replanTrigger: payload.replanTrigger,
+        },
       );
     });
   }

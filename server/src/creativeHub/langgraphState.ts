@@ -10,6 +10,7 @@ import type {
 } from "@ai-novel/shared/types/creativeHub";
 import type { FailureDiagnostic } from "@ai-novel/shared/types/agent";
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
+import type { DynamicWorkflowPlan, ReplanTrigger } from "@ai-novel/shared/types/dynamicPlan";
 
 export interface CreativeHubRunSettings {
   provider?: LLMProvider;
@@ -52,6 +53,11 @@ export const CreativeHubGraphState = Annotation.Root({
   latestError: Annotation<string | null>(),
   diagnostics: Annotation<FailureDiagnostic | undefined>(),
   turnSummary: Annotation<CreativeHubTurnSummary | null>(),
+  dynamicPlan: Annotation<DynamicWorkflowPlan | null>(),
+  replanContext: Annotation<ReplanTrigger | null>(),
+  replanCount: Annotation<number>(),
+  useStaticFallback: Annotation<boolean>(),
+  assistantOutput: Annotation<string | null>(),
 });
 
 export type CreativeHubGraphStateValue = typeof CreativeHubGraphState.State;

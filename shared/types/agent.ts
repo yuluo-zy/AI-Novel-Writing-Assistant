@@ -132,6 +132,19 @@ export interface AgentRunMetrics {
   toolFailureByCode?: Partial<Record<AgentToolErrorCode, number>>;
 }
 
+export type AgentOrchestrationMode = "static" | "dynamic" | "dynamic_fallback_static";
+
+export interface DynamicExecutionStateSummary {
+  mode: AgentOrchestrationMode;
+  currentPhase?: string | null;
+  currentStep?: string | null;
+  remainingPhaseCount?: number;
+  remainingStepCount?: number;
+  waitingForApproval?: boolean;
+  lastReplanReason?: string | null;
+  fallbackReason?: string | null;
+}
+
 export interface ReplayRequest {
   fromStepId: string;
   mode?: "continue" | "dry_run";
@@ -203,4 +216,5 @@ export interface AgentRunDetail {
   diagnostics?: FailureDiagnostic;
   sourceResource?: ResourceRef | null;
   targetResources?: ResourceRef[];
+  orchestration?: DynamicExecutionStateSummary | null;
 }

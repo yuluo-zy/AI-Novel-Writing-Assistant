@@ -1584,6 +1584,21 @@ model AgentApproval {
   @@index([status, expiresAt])
 }
 
+model AgentPlanSnapshot {
+  id                 String   @id @default(cuid())
+  runId              String
+  version            Int
+  status             String   @default("active")
+  planJson           String
+  completedStepCount Int      @default(0)
+  parentVersionId    String?
+  replanTriggerJson  String?
+  createdAt          DateTime @default(now())
+
+  @@unique([runId, version])
+  @@index([runId, createdAt])
+}
+
 model CreativeHubThread {
   id               String                  @id @default(cuid())
   title            String                  @default("新对话")

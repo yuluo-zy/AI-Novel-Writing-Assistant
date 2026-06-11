@@ -6,6 +6,7 @@ import { z } from "zod";
 import { agentRuntime } from "../agents";
 import { authMiddleware } from "../middleware/auth";
 import { validate } from "../middleware/validate";
+import { parseRunMetadata } from "../agents/runtime/runtimeHelpers";
 import { buildTaskRecoveryHint, normalizeFailureSummary } from "../services/task/taskSupport";
 
 const router = Router();
@@ -38,6 +39,7 @@ const replayBodySchema = z.object({
 });
 
 function enrichRunDetail(detail: AgentRunDetail): AgentRunDetail {
+  const metadata = parseRunMetadata(detail.run.metadataJson);
   const failedStep = [...detail.steps].reverse().find((step) => step.status === "failed");
   const failureSummary = detail.run.status === "failed"
     ? normalizeFailureSummary(detail.run.error ?? failedStep?.error, "运行失败，但没有记录明确错误。")
@@ -73,6 +75,11 @@ function enrichRunDetail(detail: AgentRunDetail): AgentRunDetail {
         route: detail.run.novelId ? `/novels/${detail.run.novelId}/edit` : `/creative-hub?runId=${detail.run.id}`,
       }]
       : [],
+    orchestration: metadata.dynamicExecutionState ?? (metadata.orchestrationMode
+      ? {
+        mode: metadata.orchestrationMode,
+      }
+      : null),
   };
 }
 

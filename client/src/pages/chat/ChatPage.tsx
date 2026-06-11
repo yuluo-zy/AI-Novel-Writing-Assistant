@@ -597,6 +597,7 @@ export default function ChatPage() {
         hasLiveEvents={liveEvents.length > 0}
         safePreview={safePreview}
         stepTitle={stepTitle}
+        orchestration={persistedRun?.orchestration ?? null}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import type { FailureDiagnostic } from "./agent";
+import type { DynamicExecutionStateSummary, FailureDiagnostic } from "./agent";
 
 export type CreativeHubThreadStatus = "idle" | "busy" | "interrupted" | "error";
 export type CreativeHubTurnStatus = "running" | "succeeded" | "interrupted" | "failed" | "cancelled";
@@ -131,12 +131,18 @@ export interface CreativeHubTurnSummary {
   actionSummary: string;
   impactSummary: string;
   nextSuggestion: string;
+  currentPlanPhase?: string;
+  currentStepDescription?: string;
+  waitReason?: string;
+  lastReplanReason?: string;
+  orchestration?: DynamicExecutionStateSummary | null;
 }
 
 export interface CreativeHubThreadMetadata {
   productionStatus?: CreativeHubProductionStatus | null;
   novelSetup?: CreativeHubNovelSetupStatus | null;
   latestTurnSummary?: CreativeHubTurnSummary | null;
+  dynamicExecutionState?: DynamicExecutionStateSummary | null;
   [key: string]: unknown;
 }
 

@@ -1,6 +1,10 @@
 import type {
+  AgentOrchestrationMode,
+  DynamicExecutionStateSummary,
   AgentRunStartInput,
+  DynamicWorkflowPlan,
   PlannedAction,
+  ReplanTrigger,
   StructuredIntent,
   ToolCall,
   ToolExecutionContext,
@@ -22,6 +26,11 @@ export interface SerializedContinuationPayload {
   structuredIntent?: StructuredIntent;
   context: Omit<ToolExecutionContext, "runId" | "agentName">;
   plannedActions: PlannedAction[];
+  dynamicPlan?: DynamicWorkflowPlan;
+  orchestrationMode?: AgentOrchestrationMode;
+  replanCount?: number;
+  fallbackReason?: string;
+  replanTrigger?: ReplanTrigger;
 }
 
 export interface RunMetadata {
@@ -35,6 +44,8 @@ export interface RunMetadata {
   parentRunId?: string;
   replayFromStepId?: string;
   plannerIntent?: StructuredIntent;
+  orchestrationMode?: AgentOrchestrationMode;
+  dynamicExecutionState?: DynamicExecutionStateSummary;
 }
 
 export const APPROVAL_TTL_MS = 1000 * 60 * 30;
@@ -362,6 +373,13 @@ export function parseApprovalPayload(payloadJson: string | null | undefined): Se
     structuredIntent: isStructuredIntent(raw.structuredIntent) ? raw.structuredIntent : undefined,
     context,
     plannedActions,
+    dynamicPlan: isRecord(raw.dynamicPlan) ? raw.dynamicPlan as DynamicWorkflowPlan : undefined,
+    orchestrationMode: raw.orchestrationMode === "dynamic" || raw.orchestrationMode === "dynamic_fallback_static"
+      ? raw.orchestrationMode
+      : "static",
+    replanCount: typeof raw.replanCount === "number" ? raw.replanCount : 0,
+    fallbackReason: typeof raw.fallbackReason === "string" ? raw.fallbackReason : undefined,
+    replanTrigger: isRecord(raw.replanTrigger) ? raw.replanTrigger as ReplanTrigger : undefined,
   };
 }
 
@@ -461,6 +479,40 @@ export function parseRunMetadata(metadataJson: string | null | undefined): RunMe
   }
   if (isStructuredIntent(raw.plannerIntent)) {
     metadata.plannerIntent = raw.plannerIntent;
+  }
+  if (
+    raw.orchestrationMode === "static"
+    || raw.orchestrationMode === "dynamic"
+    || raw.orchestrationMode === "dynamic_fallback_static"
+  ) {
+    metadata.orchestrationMode = raw.orchestrationMode;
+  }
+  if (isRecord(raw.dynamicExecutionState)) {
+    metadata.dynamicExecutionState = {
+      mode: raw.dynamicExecutionState.mode === "dynamic"
+        || raw.dynamicExecutionState.mode === "dynamic_fallback_static"
+        ? raw.dynamicExecutionState.mode
+        : "static",
+      currentPhase: typeof raw.dynamicExecutionState.currentPhase === "string"
+        ? raw.dynamicExecutionState.currentPhase
+        : null,
+      currentStep: typeof raw.dynamicExecutionState.currentStep === "string"
+        ? raw.dynamicExecutionState.currentStep
+        : null,
+      remainingPhaseCount: typeof raw.dynamicExecutionState.remainingPhaseCount === "number"
+        ? raw.dynamicExecutionState.remainingPhaseCount
+        : undefined,
+      remainingStepCount: typeof raw.dynamicExecutionState.remainingStepCount === "number"
+        ? raw.dynamicExecutionState.remainingStepCount
+        : undefined,
+      waitingForApproval: raw.dynamicExecutionState.waitingForApproval === true,
+      lastReplanReason: typeof raw.dynamicExecutionState.lastReplanReason === "string"
+        ? raw.dynamicExecutionState.lastReplanReason
+        : null,
+      fallbackReason: typeof raw.dynamicExecutionState.fallbackReason === "string"
+        ? raw.dynamicExecutionState.fallbackReason
+        : null,
+    };
   }
   return metadata;
 }
