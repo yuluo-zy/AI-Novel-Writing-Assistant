@@ -19,8 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import DesktopLegacyDataImportCard from "@/components/layout/DesktopLegacyDataImportCard";
-import DesktopUpdateCard from "@/components/layout/DesktopUpdateCard";
 import AutoDirectorSettingsSection from "./AutoDirectorSettingsSection";
 import { ProviderRequestLimitSummary } from "./components/ProviderRequestLimitFields";
 import SettingsNavigationCards from "./components/SettingsNavigationCards";
@@ -412,9 +410,6 @@ export default function SettingsPage() {
 
   return (
     <div className={AUTO_DIRECTOR_MOBILE_CLASSES.settingsPageRoot}>
-      <DesktopUpdateCard />
-      <DesktopLegacyDataImportCard forceVisible />
-
       <SettingsNavigationCards />
       <StyleEngineRuntimeSettingsCard />
 

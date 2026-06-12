@@ -1,7 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { matchPath, Outlet, useLocation } from "react-router-dom";
 import AppRouteFallback from "./AppRouteFallback";
-import DesktopModelSetupGate from "./DesktopModelSetupGate";
 import LLMSelectionBootstrap from "./LLMSelectionBootstrap";
 import Navbar from "./Navbar";
 import NovelWorkspaceRail from "./NovelWorkspaceRail";
@@ -76,7 +75,7 @@ export default function AppLayout() {
       <TaskRecoveryProvider>
         <div className="min-h-screen bg-background">
           <LLMSelectionBootstrap />
-          <DesktopModelSetupGate />
+
           <Suspense fallback={<AppRouteFallback />}>
             <Outlet />
           </Suspense>
@@ -91,7 +90,7 @@ export default function AppLayout() {
       <TaskRecoveryProvider>
         <MobileSiteShell>
           <LLMSelectionBootstrap />
-          <DesktopModelSetupGate />
+
           <Suspense fallback={<AppRouteFallback />}>
             <Outlet />
           </Suspense>
@@ -127,7 +126,7 @@ export default function AppLayout() {
             )}
           </div>
           <main className={useMobileFullWidthContent ? AUTO_DIRECTOR_MOBILE_CLASSES.appMain : DEFAULT_APP_MAIN_CLASS_NAME}>
-            <DesktopModelSetupGate />
+  
             <Suspense fallback={<AppRouteFallback />}>
               <Outlet />
             </Suspense>
