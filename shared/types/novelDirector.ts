@@ -19,6 +19,12 @@ import type { TitleFactorySuggestion } from "./title";
 import type { StyleIntentSummary } from "./styleEngine";
 import type { DirectorAutoApprovalConfig } from "./autoDirectorApproval";
 
+/**
+ * == 导演（NovelDirector）类型 ==
+ * AI 自动导演系统用于规划和推进小说创作工作流。
+ */
+
+/** 导演修正预设 */
 export const DIRECTOR_CORRECTION_PRESETS = [
   {
     value: "more_hooky",
@@ -54,6 +60,7 @@ export const DIRECTOR_CORRECTION_PRESETS = [
 
 export type DirectorCorrectionPreset = typeof DIRECTOR_CORRECTION_PRESETS[number]["value"];
 
+/** 导演候选设置步骤 */
 export const DIRECTOR_CANDIDATE_SETUP_STEPS = [
   {
     key: "candidate_seed_alignment",
@@ -79,6 +86,7 @@ export const DIRECTOR_CANDIDATE_SETUP_STEPS = [
 
 export type DirectorCandidateSetupStepKey = typeof DIRECTOR_CANDIDATE_SETUP_STEPS[number]["key"];
 
+/** 导演运行模式 */
 export const DIRECTOR_RUN_MODES = [
   "full_book_autopilot",
   "auto_to_ready",
@@ -88,15 +96,16 @@ export const DIRECTOR_RUN_MODES = [
 
 export type DirectorRunMode = typeof DIRECTOR_RUN_MODES[number];
 
+/** 自动执行运行模式 */
 export const DIRECTOR_AUTO_EXECUTION_RUN_MODES = [
   "auto_to_execution",
   "full_book_autopilot",
 ] as const;
 
 export type DirectorAutoExecutionRunMode = typeof DIRECTOR_AUTO_EXECUTION_RUN_MODES[number];
-
 export const DIRECTOR_FULL_BOOK_AUTOPILOT_RUN_MODE = "full_book_autopilot" as const;
 
+/** 全书自动驾驶中断原因 */
 export const DIRECTOR_FULL_BOOK_AUTOPILOT_INTERRUPT_REASONS = [
   "model_unavailable",
   "service_unavailable",
@@ -107,6 +116,7 @@ export const DIRECTOR_FULL_BOOK_AUTOPILOT_INTERRUPT_REASONS = [
 
 export type DirectorFullBookAutopilotInterruptReason = typeof DIRECTOR_FULL_BOOK_AUTOPILOT_INTERRUPT_REASONS[number];
 
+/** 熔断器原因 */
 export const DIRECTOR_CIRCUIT_BREAKER_REASONS = [
   "auto_repair_exhausted",
   "replan_loop",
@@ -119,6 +129,7 @@ export const DIRECTOR_CIRCUIT_BREAKER_REASONS = [
 
 export type DirectorCircuitBreakerReason = typeof DIRECTOR_CIRCUIT_BREAKER_REASONS[number];
 
+/** 熔断器状态 */
 export interface DirectorCircuitBreakerState {
   status: "closed" | "open";
   reason?: DirectorCircuitBreakerReason | null;
@@ -138,18 +149,21 @@ export interface DirectorCircuitBreakerState {
   recoveryAction?: "retry" | "resume_after_review" | "switch_model" | "confirm_protected_content" | "manual_repair" | null;
 }
 
+/** 质量循环预算尝试动作 */
 export type DirectorQualityLoopBudgetAttemptAction =
   | "patch_repair"
   | "chapter_rewrite"
   | "window_replan"
   | "defer_and_continue";
 
+/** 质量循环预算下一步动作 */
 export type DirectorQualityLoopBudgetNextAction =
   | "auto_patch_repair"
   | "auto_rewrite_chapter"
   | "auto_replan_window"
   | "defer_and_continue";
 
+/** 质量循环预算窗口 */
 export interface DirectorQualityLoopBudgetWindow {
   startOrder?: number | null;
   endOrder?: number | null;
@@ -157,6 +171,7 @@ export interface DirectorQualityLoopBudgetWindow {
   chapterIds?: string[];
 }
 
+/** 质量循环预算条目 */
 export interface DirectorQualityLoopBudgetEntry {
   signatureKey: string;
   issueSignature: string;
@@ -173,6 +188,7 @@ export interface DirectorQualityLoopBudgetEntry {
   updatedAt: string;
 }
 
+/** 质量循环预算账本 */
 export interface DirectorQualityLoopBudgetLedger {
   entries: DirectorQualityLoopBudgetEntry[];
   updatedAt?: string | null;
@@ -181,6 +197,7 @@ export interface DirectorQualityLoopBudgetLedger {
 export const DIRECTOR_MIN_TARGET_CHAPTER_COUNT = 12;
 export const DIRECTOR_MAX_TARGET_CHAPTER_COUNT = 2000;
 
+/** 自动执行模式 */
 export const DIRECTOR_AUTO_EXECUTION_MODES = [
   "book",
   "chapter_range",
@@ -189,6 +206,7 @@ export const DIRECTOR_AUTO_EXECUTION_MODES = [
 
 export type DirectorAutoExecutionMode = typeof DIRECTOR_AUTO_EXECUTION_MODES[number];
 
+/** 自动执行计划 */
 export interface DirectorAutoExecutionPlan {
   mode: DirectorAutoExecutionMode;
   startOrder?: number;
@@ -199,6 +217,7 @@ export interface DirectorAutoExecutionPlan {
   artifactSyncMode?: ArtifactSyncMode;
 }
 
+/** 全书自动驾驶合同 */
 export interface DirectorFullBookAutopilotContract {
   runMode: typeof DIRECTOR_FULL_BOOK_AUTOPILOT_RUN_MODE;
   autoExecutionPlan: DirectorAutoExecutionPlan & {
@@ -240,6 +259,7 @@ export function buildFullBookAutopilotExecutionPlan(): DirectorAutoExecutionPlan
   };
 }
 
+/** 导演继续模式 */
 export type DirectorContinuationMode = "resume" | "auto_execute_range" | "skip_quality_repair";
 
 export function normalizeDirectorContinuationMode(
@@ -251,6 +271,7 @@ export function normalizeDirectorContinuationMode(
   return null;
 }
 
+/** 自动执行状态 */
 export interface DirectorAutoExecutionState extends DirectorAutoExecutionPlan {
   enabled: boolean;
   scopeLabel?: string | null;
@@ -362,6 +383,7 @@ export interface BookSpec {
   targetChapterCount: number;
 }
 
+/** 导演候选 */
 export interface DirectorCandidate {
   id: string;
   workingTitle: string;
@@ -379,6 +401,7 @@ export interface DirectorCandidate {
   targetChapterCount: number;
 }
 
+/** 导演候选批次 */
 export interface DirectorCandidateBatch {
   id: string;
   round: number;

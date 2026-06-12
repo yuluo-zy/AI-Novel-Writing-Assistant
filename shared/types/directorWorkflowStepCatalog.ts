@@ -42,6 +42,7 @@ function buildStepAliasMap(aliasKey: "nodeKeys" | "currentItemKeys"): Map<string
   return result;
 }
 
+/** 通过 step ID 查找工作流步骤目录条目 */
 export function findWorkflowStepCatalogEntryById(
   stepId: string | null | undefined,
 ): WorkflowStepCatalogEntry | null {
@@ -49,6 +50,7 @@ export function findWorkflowStepCatalogEntryById(
   return key ? STEP_BY_ID.get(key) ?? null : null;
 }
 
+/** 获取工作流步骤目录条目（找不到则抛错） */
 export function getWorkflowStepCatalogEntry(stepId: string): WorkflowStepCatalogEntry {
   const entry = findWorkflowStepCatalogEntryById(stepId);
   if (!entry) {
@@ -57,6 +59,7 @@ export function getWorkflowStepCatalogEntry(stepId: string): WorkflowStepCatalog
   return entry;
 }
 
+/** 通过 nodeKey 查找工作流步骤目录条目 */
 export function findWorkflowStepCatalogEntryByNodeKey(
   nodeKey: string | null | undefined,
 ): WorkflowStepCatalogEntry | null {
@@ -64,6 +67,7 @@ export function findWorkflowStepCatalogEntryByNodeKey(
   return key ? STEP_BY_NODE_OR_ALIAS.get(key) ?? null : null;
 }
 
+/** 通过 currentItemKey 查找工作流步骤目录条目 */
 export function findWorkflowStepCatalogEntryByCurrentItemKey(
   currentItemKey: string | null | undefined,
 ): WorkflowStepCatalogEntry | null {
@@ -71,6 +75,7 @@ export function findWorkflowStepCatalogEntryByCurrentItemKey(
   return key ? STEP_BY_ITEM_OR_ALIAS.get(key) ?? null : null;
 }
 
+/** 通过检查点类型查找检查点目录条目 */
 export function findWorkflowCheckpointCatalogEntry(
   checkpointType: string | null | undefined,
 ): WorkflowCheckpointCatalogEntry | null {
@@ -78,10 +83,12 @@ export function findWorkflowCheckpointCatalogEntry(
   return key ? CHECKPOINT_BY_TYPE.get(key) ?? null : null;
 }
 
+/** 判断值是否为合法的展示阶段键 */
 export function isWorkflowDisplayStageKey(value: unknown): value is WorkflowStepCatalogDisplayStage {
   return typeof value === "string" && DISPLAY_STAGE_KEYS.has(value as WorkflowStepCatalogDisplayStage);
 }
 
+/** 从多种输入源解析工作流展示阶段 */
 export function resolveWorkflowDisplayStage(input: {
   factStepId?: string | null;
   currentNodeKey?: string | null;
@@ -111,6 +118,7 @@ export function resolveWorkflowDisplayStage(input: {
   return currentStage ? WORKFLOW_STAGE_TO_DISPLAY_STAGE[currentStage] ?? "project_setup" : "project_setup";
 }
 
+/** 从检查点类型解析工作流阶段 */
 export function resolveWorkflowStageFromCheckpoint(input: {
   checkpointType: NovelWorkflowCheckpoint | string | null | undefined;
   status?: string | null;
@@ -121,6 +129,7 @@ export function resolveWorkflowStageFromCheckpoint(input: {
   return findWorkflowCheckpointCatalogEntry(input.checkpointType)?.workflowStage ?? null;
 }
 
+/** 从当前项键或检查点解析工作流阶段 */
 export function resolveWorkflowStageFromItemOrCheckpoint(input: {
   currentItemKey?: string | null;
   checkpointType?: NovelWorkflowCheckpoint | string | null;
@@ -138,6 +147,7 @@ export function resolveWorkflowStageFromItemOrCheckpoint(input: {
   return stage && WORKFLOW_STAGE_TO_DISPLAY_STAGE[stage] ? stage : null;
 }
 
+/** 获取工作流检查点的中文标签 */
 export function getWorkflowCheckpointLabel(input: {
   checkpointType: string | null | undefined;
   status?: string | null;
@@ -160,12 +170,14 @@ export function getWorkflowCheckpointLabel(input: {
   return checkpoint.label;
 }
 
+/** 检查点类型 → 自动审批点编码 */
 export function resolveWorkflowApprovalPointForCheckpoint(
   checkpointType: string | null | undefined,
 ): WorkflowStepCatalogApprovalPoint | null {
   return findWorkflowCheckpointCatalogEntry(checkpointType)?.approvalPoint ?? null;
 }
 
+/** 获取工作流步骤的写入合同需求 */
 export function getWorkflowStepWriteContractRequirements(): Array<{
   id: string;
   writes: string[];

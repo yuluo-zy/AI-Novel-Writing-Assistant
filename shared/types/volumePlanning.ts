@@ -4,8 +4,11 @@ import type {
   VolumeCountRange,
 } from "./novel";
 
+/** 最小总章节预算 */
 export const MIN_TOTAL_CHAPTER_BUDGET = 12;
+/** 最大卷数 */
 export const MAX_VOLUME_COUNT = 16;
+/** 默认卷章节目标范围 */
 export const DEFAULT_VOLUME_CHAPTER_TARGET_RANGE: VolumeChapterTargetRange = {
   min: 40,
   ideal: 55,
@@ -24,6 +27,7 @@ function normalizePositiveInteger(value: number | null | undefined): number | nu
   return rounded > 0 ? rounded : null;
 }
 
+/** 构建硬性规划的卷数范围 */
 export function buildHardPlannedVolumeRange(recommendedVolumeCount: number): VolumeCountRange {
   const normalizedCount = Math.max(1, Math.round(recommendedVolumeCount));
   if (normalizedCount <= 2) {
@@ -44,6 +48,7 @@ export function buildHardPlannedVolumeRange(recommendedVolumeCount: number): Vol
   };
 }
 
+/** 构建卷数引导建议 */
 export function buildVolumeCountGuidance(params: {
   chapterBudget: number;
   existingVolumeCount?: number | null;

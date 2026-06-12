@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** 角色同步策略 */
 export const characterSyncPolicySchema = z.enum([
   "manual_review",
   "pull_library_safe_fields",
@@ -7,17 +8,20 @@ export const characterSyncPolicySchema = z.enum([
   "forked",
 ]);
 
+/** 角色库链接状态 */
 export const characterLibraryLinkStatusSchema = z.enum([
   "linked",
   "forked",
   "detached",
 ]);
 
+/** 角色同步方向 */
 export const characterSyncDirectionSchema = z.enum([
   "novel_to_library",
   "library_to_novel",
 ]);
 
+/** 角色同步提案状态 */
 export const characterSyncProposalStatusSchema = z.enum([
   "pending_review",
   "applied",
@@ -25,6 +29,7 @@ export const characterSyncProposalStatusSchema = z.enum([
   "rejected",
 ]);
 
+/** 角色同步字段层级 */
 export const characterSyncFieldLayerSchema = z.enum([
   "identity",
   "persona",
@@ -33,6 +38,7 @@ export const characterSyncFieldLayerSchema = z.enum([
   "growth_deposit",
 ]);
 
+/** 基础角色草稿 */
 export const baseCharacterDraftSchema = z.object({
   name: z.string().trim().min(1),
   role: z.string().trim().min(1),
@@ -47,6 +53,7 @@ export const baseCharacterDraftSchema = z.object({
   category: z.string().trim().min(1),
 });
 
+/** 角色同步字段更新 */
 export const characterSyncFieldUpdateSchema = z.object({
   field: z.string().trim().min(1),
   layer: characterSyncFieldLayerSchema,
@@ -56,6 +63,7 @@ export const characterSyncFieldUpdateSchema = z.object({
   toValue: z.string().trim().nullable().optional(),
 });
 
+/** 角色同步提案负载 */
 export const characterSyncProposalPayloadSchema = z.object({
   baseCharacterDraft: baseCharacterDraftSchema.nullable().optional(),
   baseSnapshot: baseCharacterDraftSchema.nullable().optional(),
@@ -64,6 +72,7 @@ export const characterSyncProposalPayloadSchema = z.object({
   scopeNote: z.string().trim().nullable().optional(),
 }).passthrough();
 
+/** AI 输出的角色同步提案 */
 export const characterSyncProposalAiOutputSchema = z.object({
   confidence: z.number().min(0).max(1),
   summary: z.string().trim().min(1),
@@ -80,6 +89,7 @@ export const characterSyncProposalAiOutputSchema = z.object({
   scopeNote: z.string().trim().min(1),
 });
 
+/** 基础角色修订 */
 export const baseCharacterRevisionSchema = z.object({
   id: z.string(),
   baseCharacterId: z.string(),
@@ -91,6 +101,7 @@ export const baseCharacterRevisionSchema = z.object({
   createdAt: z.string(),
 });
 
+/** 角色库链接 */
 export const characterLibraryLinkSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -105,6 +116,7 @@ export const characterLibraryLinkSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 角色同步提案 */
 export const characterSyncProposalSchema = z.object({
   id: z.string(),
   novelId: z.string().nullable().optional(),
@@ -126,6 +138,7 @@ export const characterSyncProposalSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 保存角色到库的输入 */
 export const novelCharacterSaveToLibraryInputSchema = z.object({
   proposalId: z.string().trim().min(1).optional(),
   baseCharacter: baseCharacterDraftSchema.optional(),
@@ -133,12 +146,14 @@ export const novelCharacterSaveToLibraryInputSchema = z.object({
   linkStatus: characterLibraryLinkStatusSchema.default("linked"),
 });
 
+/** 基础角色导入模式 */
 export const baseCharacterImportModeSchema = z.enum([
   "prototype",
   "linked",
   "detached_copy",
 ]);
 
+/** 导入基础角色到小说的输入 */
 export const importBaseCharacterToNovelInputSchema = z.object({
   baseCharacterId: z.string().trim().min(1),
   mode: baseCharacterImportModeSchema.default("prototype"),

@@ -5,6 +5,7 @@ import type {
   ChapterFailureClassification,
 } from "./chapterRuntime.js";
 
+/** 章节质量循环产物类型 */
 export const CHAPTER_QUALITY_LOOP_ARTIFACT_TYPES = [
   "chapter_retention_contract",
   "continuity_state",
@@ -12,39 +13,68 @@ export const CHAPTER_QUALITY_LOOP_ARTIFACT_TYPES = [
 ] as const;
 
 export type ChapterQualityLoopArtifactType = typeof CHAPTER_QUALITY_LOOP_ARTIFACT_TYPES[number];
+/** 章节质量循环信号状态 */
 export type ChapterQualityLoopSignalStatus = "valid" | "risk" | "invalid" | "missing";
+/** 章节质量循环建议操作 */
 export type ChapterQualityLoopAction = "continue" | "patch_repair" | "replan" | "manual_gate";
+/** 章节质量循环预算动作 */
 export type ChapterQualityLoopBudgetAction = "patch_repair" | "rewrite_chapter" | "replan_window" | "hard_stop";
+/** 章节质量循环风险分类 */
 export type ChapterQualityLoopRiskClassification = "none" | "blocking" | "non_blocking_quality_debt";
 
+/** 章节质量循环预算 */
 export interface ChapterQualityLoopBudget {
+  /** 签名（用于识别重复失败模式） */
   signature: string;
+  /** 当前尝试次数 */
   attempt: number;
+  /** 最大尝试次数 */
   maxAttempts: number;
+  /** 下一步动作 */
   nextAction: ChapterQualityLoopBudgetAction;
+  /** 预算是否已耗尽 */
   exhausted: boolean;
+  /** 原因 */
   reason: string;
 }
 
+/** 章节质量循环信号 */
 export interface ChapterQualityLoopSignal {
+  /** 产物类型 */
   artifactType: ChapterQualityLoopArtifactType;
+  /** 信号状态 */
   status: ChapterQualityLoopSignalStatus;
+  /** 原因 */
   reason: string;
+  /** 问题编码列表 */
   issueCodes: string[];
 }
 
+/** 章节质量循环评估结果 */
 export interface ChapterQualityLoopAssessment {
+  /** 章节 ID */
   chapterId: string;
+  /** 章节序号 */
   chapterOrder?: number | null;
+  /** 评估时间 */
   evaluatedAt: string;
+  /** 总体状态 */
   overallStatus: ChapterQualityLoopSignalStatus;
+  /** 建议操作 */
   recommendedAction: ChapterQualityLoopAction;
+  /** 是否优先使用补丁修复 */
   patchFirstRequired: boolean;
+  /** 是否需要重新检查 */
   recheckRequired: boolean;
+  /** 暂停原因 */
   pauseReason?: string | null;
+  /** 根因编码 */
   rootCauseCode?: ChapterFailureClassification["code"] | null;
+  /** 阻塞义务 */
   blockingObligations?: ChapterExecutionMissingObligation[];
+  /** 质量预算 */
   budget?: ChapterQualityLoopBudget | null;
+  /** 信号列表 */
   signals: ChapterQualityLoopSignal[];
 }
 
@@ -68,6 +98,7 @@ function hasBlockingObligations(value: unknown): boolean {
   return Array.isArray(value) && value.length > 0;
 }
 
+/** 分类章节质量循环风险 */
 export function classifyChapterQualityLoopRisk(
   qualityLoop: unknown,
 ): ChapterQualityLoopRiskClassification {
@@ -100,12 +131,14 @@ export function classifyChapterQualityLoopRisk(
   return "none";
 }
 
+/** 从风险标记 JSON 串分类章节质量循环风险 */
 export function classifyChapterQualityLoopRiskFlags(
   riskFlags: string | null | undefined,
 ): ChapterQualityLoopRiskClassification {
   return classifyChapterQualityLoopRisk(parseRiskFlagsObject(riskFlags)?.qualityLoop);
 }
 
+/** 判断风险标记是否可继续 */
 export function hasContinuableChapterQualityLoopRiskFlags(riskFlags: string | null | undefined): boolean {
   const parsed = parseRiskFlagsObject(riskFlags);
   const qualityLoop = parsed?.qualityLoop;
@@ -121,13 +154,19 @@ export function hasContinuableChapterQualityLoopRiskFlags(riskFlags: string | nu
     );
 }
 
+/** 章节质量循环评估输入 */
 export interface ChapterQualityLoopAssessmentInput {
   chapterId: string;
   chapterOrder?: number | null;
+  /** 质量评分 */
   score: QualityScore;
+  /** 审查问题列表 */
   issues: ReviewIssue[];
+  /** 运行时数据包 */
   runtimePackage?: ChapterRuntimePackage | null;
+  /** 评估时间 */
   evaluatedAt?: string | Date;
+  /** 先前修复历史 */
   previousRepairHistory?: string | null;
 }
 
@@ -358,6 +397,7 @@ function resolveAction(overallStatus: ChapterQualityLoopSignalStatus, signals: C
   return "continue";
 }
 
+/** 构建章节质量循环评估 */
 export function buildChapterQualityLoopAssessment(
   input: ChapterQualityLoopAssessmentInput,
 ): ChapterQualityLoopAssessment {

@@ -1,8 +1,12 @@
 import { z } from "zod";
 
+/** 小说世界观来源类型 */
 export const novelWorldSourceTypeSchema = z.enum(["imported", "generated", "manual"]);
+/** 小说世界观同步方向 */
 export const novelWorldSyncDirectionSchema = z.enum(["push", "pull", "bidirectional", "none"]);
+/** 小说世界观同步部分 */
 export const novelWorldSyncSectionSchema = z.enum(["profile", "rules", "factions", "forces", "locations", "relations"]);
+/** 世界观资产类型 */
 export const worldAssetTypeSchema = z.enum([
   "map",
   "faction_diagram",
@@ -10,8 +14,10 @@ export const worldAssetTypeSchema = z.enum([
   "character_network",
   "power_system_tree",
 ]);
+/** 世界观资产状态 */
 export const worldAssetStatusSchema = z.enum(["placeholder", "draft", "ready", "archived"]);
 
+/** 世界观地图数据 */
 export const worldMapDataSchema = z.object({
   regions: z.array(z.object({
     id: z.string(),
@@ -46,6 +52,7 @@ export const worldMapDataSchema = z.object({
   })).optional(),
 });
 
+/** 阵营图数据 */
 export const factionDiagramDataSchema = z.object({
   factions: z.array(z.object({
     id: z.string(),
@@ -68,6 +75,7 @@ export const factionDiagramDataSchema = z.object({
   })).default([]),
 });
 
+/** 世界观资产 */
 export const worldAssetSchema = z.object({
   id: z.string(),
   worldId: z.string().nullable().optional(),
@@ -84,6 +92,7 @@ export const worldAssetSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 小说世界观资产摘要 */
 export const novelWorldAssetSummarySchema = z.object({
   id: z.string().nullable(),
   assetType: worldAssetTypeSchema,
@@ -96,6 +105,7 @@ export const novelWorldAssetSummarySchema = z.object({
   hasRenderData: z.boolean(),
 });
 
+/** 小说世界观同步记录摘要 */
 export const novelWorldSyncRecordSummarySchema = z.object({
   id: z.string(),
   direction: z.enum(["push", "pull"]).or(z.string()),
@@ -105,6 +115,7 @@ export const novelWorldSyncRecordSummarySchema = z.object({
   createdAt: z.string(),
 });
 
+/** 小说世界观摘要 */
 export const novelWorldSummarySchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -126,6 +137,7 @@ export const novelWorldSummarySchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 小说世界观手册 */
 export const novelWorldHandbookSchema = z.object({
   title: z.string().nullable(),
   summary: z.string().nullable(),
@@ -164,6 +176,7 @@ export const novelWorldHandbookSchema = z.object({
   }).optional(),
 });
 
+/** 小说世界观视图 */
 export const novelWorldViewSchema = z.object({
   hasNovelWorld: z.boolean(),
   novelWorld: novelWorldSummarySchema.nullable(),
@@ -172,12 +185,14 @@ export const novelWorldViewSchema = z.object({
   syncHistory: z.array(novelWorldSyncRecordSummarySchema).default([]),
 });
 
+/** 导入世界观到小说的输入 */
 export const novelWorldImportInputSchema = z.object({
   worldId: z.string().trim().min(1),
   syncEnabled: z.boolean().optional(),
   syncDirection: novelWorldSyncDirectionSchema.optional(),
 });
 
+/** 生成小说世界观的输入 */
 export const novelWorldGenerateInputSchema = z.object({
   saveToLibrary: z.boolean().optional(),
   provider: z.string().trim().min(1).optional(),
@@ -185,15 +200,18 @@ export const novelWorldGenerateInputSchema = z.object({
   temperature: z.number().min(0).max(2).optional(),
 });
 
+/** 保存小说世界观到库的输入 */
 export const novelWorldSaveToLibraryInputSchema = z.object({
   syncEnabled: z.boolean().optional(),
 });
 
+/** 手动输入小说世界观 */
 export const novelWorldManualInputSchema = z.object({
   title: z.string().trim().max(80).optional(),
   coverSummary: z.string().trim().max(300).optional(),
 });
 
+/** 小说世界观同步差异项 */
 export const novelWorldSyncDiffItemSchema = z.object({
   section: novelWorldSyncSectionSchema,
   label: z.string(),
@@ -201,6 +219,7 @@ export const novelWorldSyncDiffItemSchema = z.object({
   summary: z.string(),
 });
 
+/** 小说世界观同步差异 */
 export const novelWorldSyncDiffSchema = z.object({
   canSync: z.boolean(),
   reason: z.string().nullable(),
@@ -211,6 +230,7 @@ export const novelWorldSyncDiffSchema = z.object({
   differences: z.array(novelWorldSyncDiffItemSchema),
 });
 
+/** 小说世界观同步输入 */
 export const novelWorldSyncInputSchema = z.object({
   direction: z.enum(["push", "pull", "none"]),
   sections: z.array(novelWorldSyncSectionSchema).optional(),

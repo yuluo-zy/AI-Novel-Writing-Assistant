@@ -5,6 +5,12 @@ import type {
   NovelWorkflowStage,
 } from "./novelWorkflow";
 
+/**
+ * == 工作流步骤目录数据 ==
+ * 定义 AI 导演工作流中每个步骤的元数据、读写资产和审批需求。
+ */
+
+/** 展示阶段键 */
 export type WorkflowStepCatalogDisplayStage =
   | "project_setup"
   | "story_planning"
@@ -14,10 +20,13 @@ export type WorkflowStepCatalogDisplayStage =
   | "chapter_execution"
   | "quality_repair";
 
+/** 标签页类型 */
 export type WorkflowStepCatalogTab = NonNullable<NovelWorkflowResumeTarget["stage"]> | "history";
 
+/** 目标类型 */
 export type WorkflowStepCatalogTargetType = "novel" | "volume" | "chapter" | "global";
 
+/** 策略动作类型 */
 export type WorkflowStepCatalogPolicyAction =
   | "analyze"
   | "run_node"
@@ -25,6 +34,7 @@ export type WorkflowStepCatalogPolicyAction =
   | "overwrite"
   | "auto_continue";
 
+/** 审批点编码 */
 export type WorkflowStepCatalogApprovalPoint =
   | "candidate_direction_confirmed"
   | "character_setup_ready"
@@ -35,6 +45,7 @@ export type WorkflowStepCatalogApprovalPoint =
   | "replan_continue"
   | "rewrite_cleanup_confirmed";
 
+/** 工作流步骤别名 */
 export interface WorkflowStepCatalogAliases {
   nodeKeys?: readonly string[];
   currentItemKeys?: readonly string[];
@@ -42,6 +53,7 @@ export interface WorkflowStepCatalogAliases {
   currentStages?: readonly string[];
 }
 
+/** 工作流步骤目录条目 */
 export interface WorkflowStepCatalogEntry {
   id: string;
   stage: string;
@@ -63,6 +75,7 @@ export interface WorkflowStepCatalogEntry {
   aliases?: WorkflowStepCatalogAliases;
 }
 
+/** 工作流检查点目录条目 */
 export interface WorkflowCheckpointCatalogEntry {
   checkpoint: NovelWorkflowMilestoneType;
   displayStage: WorkflowStepCatalogDisplayStage;
@@ -76,6 +89,7 @@ export interface WorkflowCheckpointCatalogEntry {
   defaultProgress: number;
 }
 
+/** 展示阶段定义 */
 export const WORKFLOW_DISPLAY_STAGES: readonly {
   key: WorkflowStepCatalogDisplayStage;
   label: string;
@@ -89,6 +103,7 @@ export const WORKFLOW_DISPLAY_STAGES: readonly {
   { key: "quality_repair", label: "质量修复" },
 ] as const;
 
+/** 工作流步骤 ID 常量 */
 export const DIRECTOR_WORKFLOW_STEP_IDS = {
   candidate: {
     candidate_generation: "book.candidate.generate",
@@ -123,6 +138,7 @@ export const DIRECTOR_WORKFLOW_STEP_IDS = {
   confirmNovelCreate: "book.project.create",
 } as const;
 
+/** 工作流步骤目录所有条目 */
 export const WORKFLOW_STEP_CATALOG: readonly WorkflowStepCatalogEntry[] = [
   {
     id: DIRECTOR_WORKFLOW_STEP_IDS.candidate.candidate_generation,
@@ -628,6 +644,7 @@ export const WORKFLOW_STEP_CATALOG: readonly WorkflowStepCatalogEntry[] = [
   },
 ] as const;
 
+/** 工作流检查点目录 */
 export const WORKFLOW_CHECKPOINT_CATALOG: readonly WorkflowCheckpointCatalogEntry[] = [
   {
     checkpoint: "candidate_selection_required",

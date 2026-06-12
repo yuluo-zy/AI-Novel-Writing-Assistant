@@ -1,6 +1,10 @@
 import type { NovelWorkflowCheckpoint } from "./novelWorkflow";
 import { resolveWorkflowApprovalPointForCheckpoint } from "./directorWorkflowStepCatalog.js";
 
+/**
+ * 导演自动审批组
+ * 按风险等级分组，用于批量授权
+ */
 export const DIRECTOR_AUTO_APPROVAL_GROUPS = [
   {
     id: "low_risk_continue",
@@ -31,6 +35,10 @@ export const DIRECTOR_AUTO_APPROVAL_GROUPS = [
 
 export type DirectorAutoApprovalGroupId = typeof DIRECTOR_AUTO_APPROVAL_GROUPS[number]["id"];
 
+/**
+ * 导演自动审批点
+ * 定义工作流中可自动批准的检查点及其风险等级
+ */
 export const DIRECTOR_AUTO_APPROVAL_POINTS = [
   {
     code: "candidate_direction_confirmed",
@@ -97,6 +105,7 @@ export const ALL_DIRECTOR_AUTO_APPROVAL_POINT_CODES: DirectorAutoApprovalPointCo
   DIRECTOR_AUTO_APPROVAL_POINTS.map((item) => item.code)
 );
 
+/** 导演自动审批点接口 */
 export interface DirectorAutoApprovalPoint {
   code: DirectorAutoApprovalPointCode;
   groupId: DirectorAutoApprovalGroupId;
@@ -105,17 +114,22 @@ export interface DirectorAutoApprovalPoint {
   riskLevel: DirectorAutoApprovalRiskLevel;
 }
 
+/** 导演自动审批组接口 */
 export interface DirectorAutoApprovalGroup {
   id: DirectorAutoApprovalGroupId;
   label: string;
   description: string;
 }
 
+/** 导演自动审批配置 */
 export interface DirectorAutoApprovalConfig {
+  /** 是否启用自动审批 */
   enabled: boolean;
+  /** 已授权的审批点编码列表 */
   approvalPointCodes: DirectorAutoApprovalPointCode[];
 }
 
+/** 构建完整的自动审批配置（启用所有审批点） */
 export function buildFullDirectorAutoApprovalConfig(): DirectorAutoApprovalConfig {
   return {
     enabled: true,
@@ -123,12 +137,14 @@ export function buildFullDirectorAutoApprovalConfig(): DirectorAutoApprovalConfi
   };
 }
 
+/** 导演自动审批偏好设置 */
 export interface DirectorAutoApprovalPreferenceSettings {
   approvalPointCodes: DirectorAutoApprovalPointCode[];
   approvalPoints: DirectorAutoApprovalPoint[];
   groups: DirectorAutoApprovalGroup[];
 }
 
+/** 默认自动审批点编码（仅含低风险的规划阶段） */
 export const DEFAULT_DIRECTOR_AUTO_APPROVAL_POINT_CODES: DirectorAutoApprovalPointCode[] = [
   "candidate_direction_confirmed",
   "character_setup_ready",
@@ -140,10 +156,12 @@ const AUTO_APPROVAL_POINT_CODE_SET = new Set<string>(
   DIRECTOR_AUTO_APPROVAL_POINTS.map((item) => item.code),
 );
 
+/** 判断值是否为合法的自动审批点编码 */
 export function isDirectorAutoApprovalPointCode(value: unknown): value is DirectorAutoApprovalPointCode {
   return typeof value === "string" && AUTO_APPROVAL_POINT_CODE_SET.has(value);
 }
 
+/** 规范化自动审批点编码列表（去重、校验） */
 export function normalizeDirectorAutoApprovalPointCodes(
   values: readonly unknown[] | null | undefined,
   fallback: readonly DirectorAutoApprovalPointCode[] = DEFAULT_DIRECTOR_AUTO_APPROVAL_POINT_CODES,
@@ -159,6 +177,7 @@ export function normalizeDirectorAutoApprovalPointCodes(
   return result;
 }
 
+/** 规范化自动审批配置 */
 export function normalizeDirectorAutoApprovalConfig(input: unknown): DirectorAutoApprovalConfig {
   if (!input || typeof input !== "object") {
     return {
@@ -178,6 +197,7 @@ export function normalizeDirectorAutoApprovalConfig(input: unknown): DirectorAut
   };
 }
 
+/** 为检查点类型解析对应的自动审批点编码 */
 export function resolveDirectorAutoApprovalPointForCheckpoint(
   checkpointType: NovelWorkflowCheckpoint | string | null | undefined,
 ): DirectorAutoApprovalPointCode | null {
@@ -188,6 +208,7 @@ export function resolveDirectorAutoApprovalPointForCheckpoint(
   return isDirectorAutoApprovalPointCode(pointCode) ? pointCode : null;
 }
 
+/** 判断检查点是否应自动批准 */
 export function shouldAutoApproveDirectorCheckpoint(
   config: DirectorAutoApprovalConfig | null | undefined,
   checkpointType: NovelWorkflowCheckpoint | string | null | undefined,
@@ -199,6 +220,7 @@ export function shouldAutoApproveDirectorCheckpoint(
   return Boolean(pointCode && config.approvalPointCodes.includes(pointCode));
 }
 
+/** 判断审批点编码是否应自动批准 */
 export function shouldAutoApproveDirectorApprovalPoint(
   config: DirectorAutoApprovalConfig | null | undefined,
   pointCode: DirectorAutoApprovalPointCode,

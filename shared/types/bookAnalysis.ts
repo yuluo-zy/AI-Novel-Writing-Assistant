@@ -1,7 +1,15 @@
 import type { LLMProvider } from "./llm";
 
+/**
+ * == 拆书分析（Book Analysis）类型 ==
+ * 对已有作品进行分析和拆解，提取结构、人物、风格等可供参考的信息。
+ */
+
+/** 拆书分析状态 */
 export type BookAnalysisStatus = "draft" | "queued" | "running" | "succeeded" | "failed" | "cancelled" | "archived";
+/** 分析章节状态 */
 export type BookAnalysisSectionStatus = "idle" | "running" | "succeeded" | "failed";
+/** 分析章节键 */
 export type BookAnalysisSectionKey =
   | "overview"
   | "plot_structure"
@@ -11,14 +19,18 @@ export type BookAnalysisSectionKey =
   | "themes"
   | "style_technique"
   | "market_highlights";
+/** 分析预设 */
 export type BookAnalysisPreset = "quick" | "standard" | "complete";
+/** 结构化字段类型 */
 export type BookAnalysisStructuredFieldType = "string" | "stringArray";
 
+/** 结构化字段规格 */
 export interface BookAnalysisStructuredFieldSpec {
   key: string;
   type: BookAnalysisStructuredFieldType;
 }
 
+/** 拆书分析章节定义 */
 export const BOOK_ANALYSIS_SECTIONS: ReadonlyArray<{
   key: BookAnalysisSectionKey;
   title: string;
@@ -33,6 +45,7 @@ export const BOOK_ANALYSIS_SECTIONS: ReadonlyArray<{
   { key: "market_highlights", title: "商业化卖点" },
 ];
 
+/** 拆书分析预设定义 */
 export const BOOK_ANALYSIS_PRESETS: ReadonlyArray<{
   key: BookAnalysisPreset;
   title: string;
@@ -59,6 +72,7 @@ export const BOOK_ANALYSIS_PRESETS: ReadonlyArray<{
   },
 ];
 
+/** 拆书分析结构化字段中文标签映射 */
 export const BOOK_ANALYSIS_STRUCTURED_FIELD_LABELS: Readonly<Record<string, string>> = {
   oneLinePositioning: "一句话定位",
   genreTags: "题材标签",
@@ -110,6 +124,7 @@ export const BOOK_ANALYSIS_STRUCTURED_FIELD_LABELS: Readonly<Record<string, stri
   commercialRisks: "商业化风险",
 };
 
+/** 各分析章节的结构化字段规格 */
 export const BOOK_ANALYSIS_STRUCTURED_FIELD_SPECS: Readonly<Record<BookAnalysisSectionKey, ReadonlyArray<BookAnalysisStructuredFieldSpec>>> = {
   overview: [
     { key: "oneLinePositioning", type: "string" },
@@ -177,64 +192,109 @@ export const BOOK_ANALYSIS_STRUCTURED_FIELD_SPECS: Readonly<Record<BookAnalysisS
   ],
 };
 
+/** 拆书分析的证据条目 */
 export interface BookAnalysisEvidenceItem {
+  /** 证据标签 */
   label: string;
+  /** 证据原文摘录 */
   excerpt: string;
+  /** 来源标签 */
   sourceLabel: string;
 }
 
+/** 拆书分析章节 */
 export interface BookAnalysisSection {
   id: string;
   analysisId: string;
   sectionKey: BookAnalysisSectionKey;
   title: string;
   status: BookAnalysisSectionStatus;
+  /** AI 生成内容 */
   aiContent?: string | null;
+  /** 人工编辑后的内容 */
   editedContent?: string | null;
+  /** 笔记 */
   notes?: string | null;
+  /** 结构化数据 */
   structuredData?: Record<string, unknown> | null;
+  /** 证据列表 */
   evidence: BookAnalysisEvidenceItem[];
+  /** 是否已冻结 */
   frozen: boolean;
+  /** 排序序号 */
   sortOrder: number;
+  /** 更新时间 */
   updatedAt: string;
 }
 
+/** 拆书分析 */
 export interface BookAnalysis {
   id: string;
+  /** 关联文档 ID */
   documentId: string;
+  /** 关联文档版本 ID */
   documentVersionId: string;
+  /** 文档标题 */
   documentTitle: string;
+  /** 文档文件名 */
   documentFileName: string;
+  /** 文档版本号 */
   documentVersionNumber: number;
+  /** 当前文档版本 ID */
   currentDocumentVersionId?: string | null;
+  /** 当前文档版本号 */
   currentDocumentVersionNumber: number;
+  /** 是否为当前版本 */
   isCurrentVersion: boolean;
+  /** 分析标题 */
   title: string;
+  /** 分析状态 */
   status: BookAnalysisStatus;
+  /** 分析摘要 */
   summary?: string | null;
+  /** LLM 提供商 */
   provider?: LLMProvider | null;
+  /** 模型名称 */
   model?: string | null;
+  /** 温度 */
   temperature?: number | null;
+  /** 最大 token 数 */
   maxTokens?: number | null;
+  /** 进度 (0-100) */
   progress: number;
+  /** 心跳时间 */
   heartbeatAt?: string | null;
+  /** 当前阶段 */
   currentStage?: string | null;
+  /** 当前项键 */
   currentItemKey?: string | null;
+  /** 当前项标签 */
   currentItemLabel?: string | null;
+  /** 取消请求时间 */
   cancelRequestedAt?: string | null;
+  /** 尝试次数 */
   attemptCount: number;
+  /** 最大尝试次数 */
   maxAttempts: number;
+  /** 最后错误 */
   lastError?: string | null;
+  /** 最后运行时间 */
   lastRunAt?: string | null;
+  /** 发布文档 ID */
   publishedDocumentId?: string | null;
+  /** 创建时间 */
   createdAt: string;
+  /** 更新时间 */
   updatedAt: string;
 }
 
+/** 拆书分析详情（含章节列表） */
 export interface BookAnalysisDetail extends BookAnalysis {
+  /** 分析章节列表 */
   sections: BookAnalysisSection[];
 }
 
+/** 拆书分析发布结果 */
 export interface BookAnalysisPublishResult {
   analysisId: string;
   novelId: string;
@@ -244,6 +304,8 @@ export interface BookAnalysisPublishResult {
   publishedAt: string;
 }
 
+/** 拆书分析章节优化预览 */
 export interface BookAnalysisSectionOptimizePreview {
+  /** 优化后的草稿 */
   optimizedDraft: string;
 }

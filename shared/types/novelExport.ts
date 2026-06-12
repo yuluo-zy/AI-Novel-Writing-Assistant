@@ -1,3 +1,4 @@
+/** 小说导出范围可选值 */
 export const NOVEL_EXPORT_SCOPE_VALUES = [
   "full",
   "basic",
@@ -9,16 +10,20 @@ export const NOVEL_EXPORT_SCOPE_VALUES = [
   "pipeline",
 ] as const;
 
-export type NovelExportScope = (typeof NOVEL_EXPORT_SCOPE_VALUES)[number];
-
+/** 小说导出格式可选值 */
 export const NOVEL_EXPORT_FORMAT_VALUES = ["txt", "markdown", "json"] as const;
 
-export type NovelExportFormat = (typeof NOVEL_EXPORT_FORMAT_VALUES)[number];
-
+/** 小说导出下载格式可选值 */
 export const NOVEL_EXPORT_DOWNLOAD_FORMAT_VALUES = ["markdown", "json"] as const;
 
+/** 小说导出范围 */
+export type NovelExportScope = (typeof NOVEL_EXPORT_SCOPE_VALUES)[number];
+/** 小说导出格式 */
+export type NovelExportFormat = (typeof NOVEL_EXPORT_FORMAT_VALUES)[number];
+/** 小说导出下载格式 */
 export type NovelExportDownloadFormat = (typeof NOVEL_EXPORT_DOWNLOAD_FORMAT_VALUES)[number];
 
+/** 导出范围的中文标签映射 */
 export const NOVEL_EXPORT_SCOPE_LABELS: Record<NovelExportScope, string> = {
   full: "整本书",
   basic: "项目设定",

@@ -4,28 +4,56 @@ import { sanitizeCreativeMustAdvanceItems } from "./chapterCreativeContract.js";
 const SCENE_COUNT_MIN = 3;
 const SCENE_COUNT_MAX = 8;
 
+/**
+ * 字数预算合同 schema
+ * 定义章节的目标字数和软硬限制
+ */
 export const lengthBudgetContractSchema = z.object({
+  /** 目标字数 */
   targetWordCount: z.number().int().positive(),
+  /** 软性最低字数 */
   softMinWordCount: z.number().int().positive(),
+  /** 软性最高字数 */
   softMaxWordCount: z.number().int().positive(),
+  /** 硬性最高字数 */
   hardMaxWordCount: z.number().int().positive(),
 });
 
+/**
+ * 章节场景卡 schema
+ * 描述一个场景的核心要素：目标、推进内容、入场/离场状态
+ */
 export const chapterSceneCardSchema = z.object({
+  /** 场景键 */
   key: z.string().trim().min(1),
+  /** 场景标题 */
   title: z.string().trim().min(1),
+  /** 场景目的 */
   purpose: z.string().trim().min(1),
+  /** 必须推进的内容 */
   mustAdvance: z.array(z.string().trim().min(1)).default([]),
+  /** 必须保留的内容 */
   mustPreserve: z.array(z.string().trim().min(1)).default([]),
+  /** 入场状态 */
   entryState: z.string().trim().min(1),
+  /** 离场状态 */
   exitState: z.string().trim().min(1),
+  /** 禁止扩展的内容 */
   forbiddenExpansion: z.array(z.string().trim().min(1)).default([]),
+  /** 场景目标字数 */
   targetWordCount: z.number().int().positive(),
 });
 
+/**
+ * 章节场景计划 schema
+ * 包含字数预算和 3-8 个场景卡
+ */
 export const chapterScenePlanSchema = z.object({
+  /** 目标字数 */
   targetWordCount: z.number().int().positive(),
+  /** 字数预算合同 */
   lengthBudget: lengthBudgetContractSchema,
+  /** 场景列表 */
   scenes: z.array(chapterSceneCardSchema).min(SCENE_COUNT_MIN).max(SCENE_COUNT_MAX),
 });
 
@@ -195,6 +223,7 @@ function rescaleSceneTargets(targetWordCount: number, scenes: ChapterSceneCard[]
   return scaled.map((scene) => chapterSceneCardSchema.parse(scene));
 }
 
+/** 根据目标字数计算字数预算合同 */
 export function resolveLengthBudgetContract(targetWordCount: number | null | undefined): LengthBudgetContract | null {
   if (!Number.isFinite(targetWordCount) || (targetWordCount ?? 0) <= 0) {
     return null;
@@ -208,6 +237,7 @@ export function resolveLengthBudgetContract(targetWordCount: number | null | und
   };
 }
 
+/** 规范化章节场景计划（从多种输入格式） */
 export function normalizeChapterScenePlan(
   raw: unknown,
   targetWordCount: number | null | undefined,
@@ -243,6 +273,7 @@ export function normalizeChapterScenePlan(
   });
 }
 
+/** 解析章节场景计划（从 JSON 字符串或对象） */
 export function parseChapterScenePlan(
   raw: unknown,
   options: { targetWordCount?: number | null } = {},
@@ -258,6 +289,7 @@ export function parseChapterScenePlan(
   }
 }
 
+/** 判断是否为合法的章节场景计划 */
 export function isCanonicalChapterScenePlan(
   raw: unknown,
   options: { targetWordCount?: number | null } = {},
@@ -265,6 +297,7 @@ export function isCanonicalChapterScenePlan(
   return Boolean(parseChapterScenePlan(raw, options));
 }
 
+/** 序列化章节场景计划为 JSON 字符串 */
 export function serializeChapterScenePlan(plan: ChapterScenePlan): string {
   return JSON.stringify(chapterScenePlanSchema.parse(plan));
 }

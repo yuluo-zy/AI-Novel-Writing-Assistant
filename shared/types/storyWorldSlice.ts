@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** 故事世界观切片构建模式 */
 export const storyWorldSliceBuilderModeSchema = z.enum([
   "story_macro",
   "outline",
@@ -10,6 +11,7 @@ export const storyWorldSliceBuilderModeSchema = z.enum([
   "manual_refresh",
 ]);
 
+/** 故事世界观切片规则 */
 export const storyWorldSliceRuleSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -17,6 +19,7 @@ export const storyWorldSliceRuleSchema = z.object({
   whyItMatters: z.string(),
 });
 
+/** 故事世界观切片势力 */
 export const storyWorldSliceForceSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -25,6 +28,7 @@ export const storyWorldSliceForceSchema = z.object({
   pressure: z.string(),
 });
 
+/** 故事世界观切片地点 */
 export const storyWorldSliceLocationSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -33,6 +37,7 @@ export const storyWorldSliceLocationSchema = z.object({
   risk: z.string(),
 });
 
+/** 故事世界观切片元素 */
 export const storyWorldSliceElementSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -40,6 +45,7 @@ export const storyWorldSliceElementSchema = z.object({
   summary: z.string(),
 });
 
+/** 故事世界观切片元数据 */
 export const storyWorldSliceMetaSchema = z.object({
   schemaVersion: z.number().int().min(1),
   builtAt: z.string(),
@@ -49,6 +55,7 @@ export const storyWorldSliceMetaSchema = z.object({
   builderMode: storyWorldSliceBuilderModeSchema,
 });
 
+/** 故事世界观切片 */
 export const storyWorldSliceSchema = z.object({
   storyId: z.string(),
   worldId: z.string(),
@@ -67,6 +74,7 @@ export const storyWorldSliceSchema = z.object({
   metadata: storyWorldSliceMetaSchema,
 });
 
+/** 故事世界观切片覆盖设置 */
 export const storyWorldSliceOverridesSchema = z.object({
   primaryLocationId: z.string().trim().min(1).nullable().optional(),
   requiredForceIds: z.array(z.string().trim().min(1)).max(8).optional(),
@@ -75,12 +83,14 @@ export const storyWorldSliceOverridesSchema = z.object({
   scopeNote: z.string().trim().max(400).nullable().optional(),
 });
 
+/** 故事世界观切片选项项 */
 export const storyWorldSliceOptionItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   summary: z.string(),
 });
 
+/** 故事世界观切片视图 */
 export const storyWorldSliceViewSchema = z.object({
   hasWorld: z.boolean(),
   worldId: z.string().nullable(),

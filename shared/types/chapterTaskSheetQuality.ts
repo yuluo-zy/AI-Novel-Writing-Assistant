@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parseChapterScenePlan } from "./chapterLengthControl.js";
 
+/** 章节任务单质量模式 */
 export const CHAPTER_TASK_SHEET_QUALITY_MODES = [
   "full_book_autopilot",
   "ai_copilot",
@@ -9,6 +10,7 @@ export const CHAPTER_TASK_SHEET_QUALITY_MODES = [
 
 export type ChapterTaskSheetQualityMode = typeof CHAPTER_TASK_SHEET_QUALITY_MODES[number];
 
+/** 章节任务单质量问题严重程度 */
 export const CHAPTER_TASK_SHEET_QUALITY_ISSUE_SEVERITIES = [
   "low",
   "medium",
@@ -17,6 +19,7 @@ export const CHAPTER_TASK_SHEET_QUALITY_ISSUE_SEVERITIES = [
 
 export type ChapterTaskSheetQualityIssueSeverity = typeof CHAPTER_TASK_SHEET_QUALITY_ISSUE_SEVERITIES[number];
 
+/** 章节任务单质量门禁状态 */
 export const CHAPTER_TASK_SHEET_QUALITY_STATUS = [
   "passed",
   "repairable",
@@ -26,6 +29,7 @@ export const CHAPTER_TASK_SHEET_QUALITY_STATUS = [
 
 export type ChapterTaskSheetQualityStatus = typeof CHAPTER_TASK_SHEET_QUALITY_STATUS[number];
 
+/** 章节执行合同质量候选 */
 export interface ChapterExecutionContractQualityCandidate {
   novelId: string;
   volumeId?: string | null;
@@ -46,23 +50,36 @@ export interface ChapterExecutionContractQualityCandidate {
   sceneCards?: string | null;
 }
 
+/** 章节任务单质量问题 */
 export interface ChapterTaskSheetQualityIssue {
   id: string;
+  /** 严重程度 */
   severity: ChapterTaskSheetQualityIssueSeverity;
+  /** 问题目标域 */
   target: "purpose" | "boundary" | "task_sheet" | "scene_cards" | "semantic";
+  /** 问题摘要 */
   summary: string;
+  /** 修复提示 */
   repairHint: string;
 }
 
+/** 章节任务单质量门禁结果 */
 export interface ChapterTaskSheetQualityGateResult {
+  /** 门禁状态 */
   status: ChapterTaskSheetQualityStatus;
+  /** 是否可进入执行 */
   canEnterExecution: boolean;
+  /** 问题列表 */
   issues: ChapterTaskSheetQualityIssue[];
+  /** 摘要 */
   summary: string;
+  /** 修复指引 */
   repairGuidance: string[];
+  /** 置信度 */
   confidence: number;
 }
 
+/** 章节任务单质量问题的 Zod schema */
 export const chapterTaskSheetQualityIssueSchema = z.object({
   id: z.string().trim().min(1),
   severity: z.enum(CHAPTER_TASK_SHEET_QUALITY_ISSUE_SEVERITIES),
@@ -71,14 +88,23 @@ export const chapterTaskSheetQualityIssueSchema = z.object({
   repairHint: z.string().trim().min(1),
 });
 
+/** AI 章节任务单质量评估的 Zod schema */
 export const aiChapterTaskSheetQualityAssessmentSchema = z.object({
+  /** 评估 verdict */
   verdict: z.enum(["usable", "repairable", "unusable"]),
+  /** 是否可安全同步 */
   safeToSync: z.boolean(),
+  /** 负载风险 */
   loadRisk: z.enum(["normal", "overloaded"]).default("normal"),
+  /** 建议处理方式 */
   recommendedHandling: z.enum(["use_as_is", "repair_contract", "replan_window"]).default("use_as_is"),
+  /** 评估摘要 */
   summary: z.string().trim().min(1),
+  /** 问题列表 */
   issues: z.array(chapterTaskSheetQualityIssueSchema).max(8).default([]),
+  /** 修复指引 */
   repairGuidance: z.array(z.string().trim().min(1)).max(8).default([]),
+  /** 置信度 */
   confidence: z.number().min(0).max(1),
 });
 
@@ -104,6 +130,7 @@ function createQualityIssue(
   };
 }
 
+/** 评估章节执行合同的结构完整性 */
 export function assessChapterExecutionContractShape(
   candidate: ChapterExecutionContractQualityCandidate,
 ): ChapterTaskSheetQualityGateResult {
@@ -180,6 +207,7 @@ export function assessChapterExecutionContractShape(
   };
 }
 
+/** 将语义评估映射为质量门禁结果 */
 export function mapSemanticAssessmentToQualityGate(
   assessment: AiChapterTaskSheetQualityAssessment,
   mode: ChapterTaskSheetQualityMode,
@@ -221,6 +249,7 @@ export function mapSemanticAssessmentToQualityGate(
   };
 }
 
+/** 格式化章节任务单质量失败信息 */
 export function formatChapterTaskSheetQualityFailure(result: ChapterTaskSheetQualityGateResult): string {
   const issueText = result.issues
     .slice(0, 4)

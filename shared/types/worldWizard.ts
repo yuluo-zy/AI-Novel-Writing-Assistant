@@ -8,10 +8,14 @@ import type {
   WorldStructuredData,
 } from "./world";
 
+/** 世界观选项精化等级 */
 export type WorldOptionRefinementLevel = "basic" | "standard" | "detailed";
+/** 世界观参考模式 */
 export type WorldReferenceMode = "extract_base" | "adapt_world" | "tone_rebuild";
+/** 世界观骨架预设 */
 export type WorldSkeletonPreset = "light" | "standard" | "epic";
 
+/** 世界观骨架生成计数 */
 export interface WorldSkeletonGenerationCounts {
   rules: number;
   factionGroups: number;
@@ -21,11 +25,13 @@ export interface WorldSkeletonGenerationCounts {
   storyEntrySuggestions: number;
 }
 
+/** 世界观骨架生成选项 */
 export interface WorldSkeletonGenerationOptions {
   preset: WorldSkeletonPreset;
   counts: WorldSkeletonGenerationCounts;
 }
 
+/** 世界观骨架故事入口建议 */
 export interface WorldSkeletonStoryEntrySuggestion {
   title: string;
   description: string;
@@ -34,6 +40,7 @@ export interface WorldSkeletonStoryEntrySuggestion {
   firstConflict: string;
 }
 
+/** 世界观骨架评估 */
 export interface WorldSkeletonAssessment {
   completenessScore: number;
   readyForNovelUse: boolean;
@@ -45,6 +52,7 @@ export interface WorldSkeletonAssessment {
   recommendedNextActions: string[];
 }
 
+/** 世界观骨架生成负载 */
 export interface WorldSkeletonGenerationPayload {
   concept: {
     name: string;
@@ -58,6 +66,7 @@ export interface WorldSkeletonGenerationPayload {
   assessment: WorldSkeletonAssessment;
 }
 
+/** 预设骨架生成计数 */
 export const WORLD_SKELETON_PRESET_COUNTS: Record<WorldSkeletonPreset, WorldSkeletonGenerationCounts> = {
   light: {
     rules: 3,
@@ -85,6 +94,7 @@ export const WORLD_SKELETON_PRESET_COUNTS: Record<WorldSkeletonPreset, WorldSkel
   },
 };
 
+/** 骨架生成数量限制 */
 export const WORLD_SKELETON_COUNT_LIMITS: Record<keyof WorldSkeletonGenerationCounts, { min: number; max: number }> = {
   rules: { min: 3, max: 6 },
   factionGroups: { min: 2, max: 5 },
@@ -94,6 +104,7 @@ export const WORLD_SKELETON_COUNT_LIMITS: Record<keyof WorldSkeletonGenerationCo
   storyEntrySuggestions: { min: 1, max: 5 },
 };
 
+/** 规范化世界观骨架生成选项 */
 export function normalizeWorldSkeletonGenerationOptions(
   raw: Partial<WorldSkeletonGenerationOptions> | null | undefined,
 ): WorldSkeletonGenerationOptions {
@@ -118,6 +129,7 @@ export function normalizeWorldSkeletonGenerationOptions(
   return { preset, counts };
 }
 
+/** 世界观参考锚点 */
 export interface WorldReferenceAnchor {
   id: string;
   label: string;
@@ -138,6 +150,7 @@ export interface WorldReferenceLocationSeed extends Pick<
   "id" | "name" | "terrain" | "summary" | "narrativeFunction" | "risk" | "entryConstraint" | "exitCost" | "controllingForceIds"
 > {}
 
+/** 世界观参考种子包 */
 export interface WorldReferenceSeedBundle {
   rules: WorldReferenceRuleSeed[];
   factions: WorldReferenceFactionSeed[];
@@ -145,6 +158,7 @@ export interface WorldReferenceSeedBundle {
   locations: WorldReferenceLocationSeed[];
 }
 
+/** 世界观参考种子选择 */
 export interface WorldReferenceSeedSelection {
   ruleIds: string[];
   factionIds: string[];
@@ -152,6 +166,7 @@ export interface WorldReferenceSeedSelection {
   locationIds: string[];
 }
 
+/** 世界观参考上下文 */
 export interface WorldReferenceContext {
   mode: WorldReferenceMode;
   preserveElements: string[];
@@ -194,6 +209,7 @@ export interface WorldPropertySelection {
   sourceCategory?: string | null;
 }
 
+/** 世界观生成蓝图 */
 export interface WorldGenerationBlueprint {
   version: 1;
   classicElements: string[];
@@ -216,6 +232,7 @@ export function isWorldLayerKey(value: string): value is WorldLayerKey {
   return WORLD_LAYER_KEY_SET.has(value as WorldLayerKey);
 }
 
+/** 规范化世界观生成蓝图 */
 export function normalizeWorldGenerationBlueprint(
   raw: unknown,
 ): WorldGenerationBlueprint {
@@ -312,6 +329,7 @@ export function normalizeWorldGenerationBlueprint(
   };
 }
 
+/** 解析世界观生成蓝图 */
 export function parseWorldGenerationBlueprint(
   raw: string | null | undefined,
 ): WorldGenerationBlueprint {
@@ -326,6 +344,7 @@ export function parseWorldGenerationBlueprint(
   }
 }
 
+/** 序列化世界观生成蓝图 */
 export function serializeWorldGenerationBlueprint(
   blueprint: WorldGenerationBlueprint,
 ): string {
@@ -550,6 +569,7 @@ export function normalizeWorldReferenceContext(raw: unknown): WorldReferenceCont
   };
 }
 
+/** 将世界观库分类映射到层级键 */
 export function mapWorldLibraryCategoryToLayer(category: string | null | undefined): WorldLayerKey {
   const normalized = (category ?? "").trim().toLowerCase();
   switch (normalized) {

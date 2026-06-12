@@ -44,6 +44,12 @@ export type {
   ChapterScenePlan,
   LengthBudgetContract,
 } from "./chapterLengthControl";
+
+/**
+ * == 小说核心类型 ==
+ * 小说模块的基础类型定义。
+ */
+
 export type NovelStatus = "draft" | "published";
 export type NovelWritingMode = "original" | "continuation";
 export type ProjectMode = "ai_led" | "co_pilot" | "draft_mode" | "auto_pipeline";
@@ -93,6 +99,7 @@ export type {
   PayoffLedgerSummary,
 } from "./payoffLedger";
 
+/** 章节状态 */
 export type ChapterStatus =
   | "unplanned"
   | "pending_generation"
@@ -111,6 +118,7 @@ export type PipelineRepairMode =
   | "character_only"
   | "ending_only";
 
+/** 小说自动导演任务摘要 */
 export interface NovelAutoDirectorTaskSummary {
   id: string;
   status: TaskStatus;
@@ -129,6 +137,7 @@ export interface NovelAutoDirectorTaskSummary {
   updatedAt: string;
 }
 
+/** 模型路由任务类型 */
 export type ModelRouteTaskType =
   | "planner"
   | "writer"
@@ -142,6 +151,7 @@ export type ModelRouteTaskType =
   | "fact_extraction"
   | "chat";
 
+/** 小说 */
 export interface Novel {
   id: string;
   title: string;
@@ -185,6 +195,7 @@ export interface Novel {
   updatedAt: string;
 }
 
+/** 章节 */
 export interface Chapter {
   id: string;
   title: string;
@@ -212,6 +223,7 @@ export interface Chapter {
   updatedAt: string;
 }
 
+/** 章节编辑器操作类型 */
 export type ChapterEditorOperation =
   | "polish"
   | "expand"
@@ -415,6 +427,7 @@ export type PipelineJobStatus =
   | "failed"
   | "cancelled";
 
+/** 质量评分 */
 export interface QualityScore {
   coherence: number;
   repetition: number;
@@ -424,6 +437,7 @@ export interface QualityScore {
   overall: number;
 }
 
+/** 审查问题 */
 export interface ReviewIssue {
   severity: "low" | "medium" | "high" | "critical";
   category: "coherence" | "repetition" | "pacing" | "voice" | "engagement" | "logic";

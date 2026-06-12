@@ -1,6 +1,8 @@
 import { z } from "zod";
 
+/** 角色资源所有者类型 */
 export const characterResourceOwnerTypeSchema = z.enum(["character", "organization", "location", "world", "unknown"]);
+/** 角色资源类型 */
 export const characterResourceTypeSchema = z.enum([
   "physical_item",
   "clue",
@@ -11,6 +13,7 @@ export const characterResourceTypeSchema = z.enum([
   "hidden_card",
   "world_resource",
 ]);
+/** 角色资源状态 */
 export const characterResourceStatusSchema = z.enum([
   "available",
   "hidden",
@@ -22,6 +25,7 @@ export const characterResourceStatusSchema = z.enum([
   "destroyed",
   "stale",
 ]);
+/** 角色资源叙事功能 */
 export const characterResourceNarrativeFunctionSchema = z.enum([
   "tool",
   "clue",
@@ -33,6 +37,7 @@ export const characterResourceNarrativeFunctionSchema = z.enum([
   "hidden_card",
   "constraint",
 ]);
+/** 角色资源事件类型 */
 export const characterResourceEventTypeSchema = z.enum([
   "introduced",
   "acquired",
@@ -46,9 +51,12 @@ export const characterResourceEventTypeSchema = z.enum([
   "recovered",
   "stale_marked",
 ]);
+/** 角色资源风险等级 */
 export const characterResourceRiskLevelSchema = z.enum(["none", "info", "warn", "high"]);
+/** 角色资源风险严重程度 */
 export const characterResourceRiskSeveritySchema = z.enum(["low", "medium", "high", "critical"]);
 
+/** 角色资源风险信号 */
 export const characterResourceRiskSignalSchema = z.object({
   code: z.string(),
   severity: characterResourceRiskSeveritySchema,
@@ -56,6 +64,7 @@ export const characterResourceRiskSignalSchema = z.object({
   stale: z.boolean().optional(),
 });
 
+/** 角色资源来源引用 */
 export const characterResourceSourceRefSchema = z.object({
   kind: z.enum(["chapter_content", "chapter_plan", "state_snapshot", "audit_issue", "payoff_ledger", "manual"]),
   refId: z.string().nullable().optional(),
@@ -64,12 +73,14 @@ export const characterResourceSourceRefSchema = z.object({
   chapterOrder: z.number().int().nullable().optional(),
 });
 
+/** 角色资源证据 */
 export const characterResourceEvidenceSchema = z.object({
   summary: z.string(),
   chapterId: z.string().nullable().optional(),
   chapterOrder: z.number().int().nullable().optional(),
 });
 
+/** 角色资源台账条目 */
 export const characterResourceLedgerItemSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -103,6 +114,7 @@ export const characterResourceLedgerItemSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 角色资源事件 */
 export const characterResourceEventSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -118,6 +130,7 @@ export const characterResourceEventSchema = z.object({
   createdAt: z.string(),
 });
 
+/** 规范化角色资源摘要（用于规范状态快照） */
 export const canonicalCharacterResourceSummarySchema = z.object({
   resourceId: z.string(),
   name: z.string(),
@@ -128,6 +141,7 @@ export const canonicalCharacterResourceSummarySchema = z.object({
   riskLevel: characterResourceRiskLevelSchema,
 });
 
+/** 角色资源上下文（用于章节写作） */
 export const characterResourceContextSchema = z.object({
   summary: z.string(),
   availableItems: z.array(characterResourceLedgerItemSchema).default([]),
@@ -137,6 +151,7 @@ export const characterResourceContextSchema = z.object({
   riskSignals: z.array(characterResourceRiskSignalSchema).default([]),
 });
 
+/** 角色资源提案摘要 */
 export const characterResourceProposalSummarySchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -154,11 +169,13 @@ export const characterResourceProposalSummarySchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 角色资源台账响应 */
 export const characterResourceLedgerResponseSchema = z.object({
   items: z.array(characterResourceLedgerItemSchema).default([]),
   pendingProposals: z.array(characterResourceProposalSummarySchema).default([]),
 });
 
+/** 角色资源变更负载 */
 export const characterResourceUpdatePayloadSchema = z.object({
   resourceKey: z.string().optional(),
   resourceId: z.string().optional(),

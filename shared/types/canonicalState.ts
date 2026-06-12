@@ -1,8 +1,16 @@
 import { z } from "zod";
 import { canonicalCharacterResourceSummarySchema } from "./characterResource";
 
+/**
+ * == 规范状态（Canonical State）Schema ==
+ * 规范状态是故事世界在某一时刻的权威快照，用于保证跨章节的一致性。
+ */
+
+/** 风险等级 */
 export const canonicalStateRiskLevelSchema = z.enum(["low", "medium", "high"]);
+/** 状态变更提案状态 */
 export const stateChangeProposalStatusSchema = z.enum(["validated", "pending_review", "committed", "rejected"]);
+/** 状态变更提案类型 */
 export const stateChangeProposalTypeSchema = z.enum([
   "event_record",
   "character_state_update",
@@ -15,6 +23,7 @@ export const stateChangeProposalTypeSchema = z.enum([
   "book_contract_change",
 ]);
 
+/** 书籍创作约定规范状态 */
 export const canonicalBookContractStateSchema = z.object({
   title: z.string(),
   genre: z.string().nullable().optional(),
@@ -33,6 +42,7 @@ export const canonicalBookContractStateSchema = z.object({
   hardConstraints: z.array(z.string()).default([]),
 });
 
+/** 世界观规范状态 */
 export const canonicalWorldStateSchema = z.object({
   worldId: z.string().nullable().optional(),
   name: z.string().nullable().optional(),
@@ -44,6 +54,7 @@ export const canonicalWorldStateSchema = z.object({
   currentSituation: z.string().nullable().optional(),
 });
 
+/** 角色运行时规范状态 */
 export const canonicalCharacterRuntimeStateSchema = z.object({
   characterId: z.string(),
   name: z.string(),
@@ -60,6 +71,7 @@ export const canonicalCharacterRuntimeStateSchema = z.object({
   lastEventSummary: z.string().nullable().optional(),
 });
 
+/** 开放式冲突规范状态 */
 export const canonicalOpenConflictStateSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -73,6 +85,7 @@ export const canonicalOpenConflictStateSchema = z.object({
   updatedAt: z.string().nullable().optional(),
 });
 
+/** 伏笔规范状态 */
 export const canonicalPayoffStateSchema = z.object({
   id: z.string(),
   ledgerKey: z.string(),
@@ -93,6 +106,7 @@ export const canonicalPayoffStateSchema = z.object({
   updatedAt: z.string().nullable().optional(),
 });
 
+/** 章节伏笔操作类型 */
 export const chapterPayoffDirectiveOperationSchema = z.enum([
   "seed",
   "touch",
@@ -102,6 +116,7 @@ export const chapterPayoffDirectiveOperationSchema = z.enum([
   "forbid",
 ]);
 
+/** 章节伏笔指令 */
 export const chapterPayoffDirectiveSchema = z.object({
   title: z.string(),
   ledgerKey: z.string().nullable().optional(),
@@ -110,6 +125,7 @@ export const chapterPayoffDirectiveSchema = z.object({
   forbiddenReveal: z.string().nullable().optional(),
 });
 
+/** 规范时间线事件状态 */
 export const canonicalTimelineEventStateSchema = z.object({
   chapterId: z.string().nullable().optional(),
   chapterOrder: z.number().int().nullable().optional(),
@@ -119,6 +135,7 @@ export const canonicalTimelineEventStateSchema = z.object({
   consequences: z.array(z.string()).default([]),
 });
 
+/** 叙事规范状态 */
 export const canonicalNarrativeStateSchema = z.object({
   currentVolumeId: z.string().nullable().optional(),
   currentVolumeTitle: z.string().nullable().optional(),
@@ -135,6 +152,7 @@ export const canonicalNarrativeStateSchema = z.object({
   suspenseThreads: z.array(z.string()).default([]),
 });
 
+/** 规范状态快照 - 故事世界在某一时刻的完整状态 */
 export const canonicalStateSnapshotSchema = z.object({
   novelId: z.string(),
   sourceSnapshotId: z.string().nullable().optional(),
@@ -147,6 +165,7 @@ export const canonicalStateSnapshotSchema = z.object({
   createdAt: z.string(),
 });
 
+/** 状态变更提案 */
 export const stateChangeProposalSchema = z.object({
   id: z.string().optional(),
   novelId: z.string(),
@@ -163,12 +182,14 @@ export const stateChangeProposalSchema = z.object({
   validationNotes: z.array(z.string()).default([]),
 });
 
+/** 状态变更验证结果 */
 export const stateChangeValidationResultSchema = z.object({
   accepted: z.array(stateChangeProposalSchema).default([]),
   pendingReview: z.array(stateChangeProposalSchema).default([]),
   rejected: z.array(stateChangeProposalSchema).default([]),
 });
 
+/** 状态版本记录 */
 export const stateVersionRecordSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -182,6 +203,7 @@ export const stateVersionRecordSchema = z.object({
   createdAt: z.string(),
 });
 
+/** 状态提交结果 */
 export const stateCommitResultSchema = z.object({
   versionRecord: stateVersionRecordSchema.nullable(),
   committed: z.array(stateChangeProposalSchema).default([]),
@@ -189,6 +211,7 @@ export const stateCommitResultSchema = z.object({
   rejected: z.array(stateChangeProposalSchema).default([]),
 });
 
+/** 生成下一步操作 */
 export const generationNextActionSchema = z.enum([
   "replan",
   "refresh_character_state",
@@ -199,6 +222,7 @@ export const generationNextActionSchema = z.enum([
   "hold_for_review",
 ]);
 
+/** 状态目标 */
 export const stateGoalSchema = z.object({
   summary: z.string(),
   targetConflicts: z.array(z.string()).default([]),
@@ -208,6 +232,7 @@ export const stateGoalSchema = z.object({
   protectedSecrets: z.array(z.string()).default([]),
 });
 
+/** 阶段结果预期 */
 export const stageOutcomeExpectationSchema = z.object({
   stage: z.string(),
   mustChange: z.array(z.string()).default([]),
@@ -215,11 +240,13 @@ export const stageOutcomeExpectationSchema = z.object({
   stateGoal: stateGoalSchema.nullable().optional(),
 });
 
+/** 章节状态目标 */
 export const chapterStateGoalSchema = stateGoalSchema.extend({
   chapterId: z.string(),
   chapterOrder: z.number().int(),
 });
 
+/** 小说控制策略 */
 export const novelControlPolicySchema = z.object({
   kickoffMode: z.enum(["manual_start", "director_start", "takeover_start"]),
   advanceMode: z.enum(["manual", "stage_review", "auto_to_ready", "auto_to_execution", "full_book_autopilot"]),

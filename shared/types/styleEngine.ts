@@ -1,5 +1,10 @@
 import type { LLMProvider } from "./llm";
 
+/**
+ * == 风格引擎类型 ==
+ * 管理写作风格的定义、提取、检测和应用。
+ */
+
 export type StyleSourceType =
   | "manual"
   | "from_text"
@@ -13,6 +18,7 @@ export type AntiAiRuleType = "forbidden" | "risk" | "encourage";
 export type StyleDetectionRuleType = "style" | "character" | AntiAiRuleType;
 export type AntiAiSeverity = "low" | "medium" | "high";
 
+/** 叙事规则 */
 export interface NarrativeRules {
   progressionMode?: string | null;
   sceneUnitPattern?: string[];
@@ -24,6 +30,7 @@ export interface NarrativeRules {
   [key: string]: unknown;
 }
 
+/** 角色规则 */
 export interface CharacterRules {
   allowSelfReflection?: boolean | null;
   emotionExpression?: string | null;
@@ -34,6 +41,7 @@ export interface CharacterRules {
   [key: string]: unknown;
 }
 
+/** 语言规则 */
 export interface LanguageRules {
   register?: string | null;
   roughness?: number | null;
@@ -45,6 +53,7 @@ export interface LanguageRules {
   [key: string]: unknown;
 }
 
+/** 节奏规则 */
 export interface RhythmRules {
   pace?: string | null;
   paragraphDensity?: string | null;
@@ -54,6 +63,7 @@ export interface RhythmRules {
   [key: string]: unknown;
 }
 
+/** 风格规则集合 */
 export interface StyleRuleSet {
   narrativeRules: NarrativeRules;
   characterRules: CharacterRules;
@@ -73,6 +83,7 @@ export type StyleContractMaturity = "structured" | "summary_only";
 export type StyleContractIssueCategory = "style_expression" | "story_structure";
 export type StyleContractViolationSource = "global_anti_ai" | "style_anti_ai" | "style_contract";
 
+/** 风格合同章节 */
 export interface StyleContractSection {
   key: StyleContractSectionKey;
   title: string;
@@ -82,6 +93,7 @@ export interface StyleContractSection {
   hasContent: boolean;
 }
 
+/** 风格合同元数据 */
 export interface StyleContractMeta {
   effectiveStyleProfileId?: string | null;
   taskStyleProfileId?: string | null;
@@ -96,6 +108,7 @@ export interface StyleContractMeta {
   styleAntiAiRuleIds: string[];
 }
 
+/** 风格合同 */
 export interface StyleContract {
   narrative: StyleContractSection;
   character: StyleContractSection;
@@ -106,6 +119,7 @@ export interface StyleContract {
   meta: StyleContractMeta;
 }
 
+/** 风格规则补丁 */
 export interface StyleRulePatch {
   narrativeRules?: NarrativeRules;
   characterRules?: CharacterRules;
@@ -138,6 +152,7 @@ export function isStyleCompatibilityField(
 export type StyleExtractionFeatureGroup = "narrative" | "language" | "dialogue" | "rhythm" | "fingerprint";
 export type StyleFeatureDecision = "keep" | "weaken" | "remove";
 
+/** 风格提取特征 */
 export interface StyleExtractionFeature {
   id: string;
   group: StyleExtractionFeatureGroup;
@@ -162,6 +177,7 @@ export interface StyleExtractionPresetDecision {
   decision: StyleFeatureDecision;
 }
 
+/** 风格提取预设 */
 export interface StyleExtractionPreset {
   key: "imitate" | "balanced" | "transfer";
   label: string;
@@ -169,6 +185,7 @@ export interface StyleExtractionPreset {
   decisions: StyleExtractionPresetDecision[];
 }
 
+/** 风格提取草稿 */
 export interface StyleExtractionDraft {
   name: string;
   description?: string | null;
@@ -182,6 +199,7 @@ export interface StyleExtractionDraft {
   antiAiRuleKeys: string[];
 }
 
+/** 反 AI 规则 */
 export interface AntiAiRule {
   id: string;
   key: string;
@@ -246,6 +264,7 @@ export interface AntiAiRuleAiDraftResult {
   safetyNotes: string[];
 }
 
+/** 风格档案 */
 export interface StyleProfile {
   id: string;
   name: string;
@@ -328,6 +347,7 @@ function ruleSectionHasContent(value: unknown): boolean {
   });
 }
 
+/** 判断风格规则补丁是否有内容 */
 export function hasStyleRulePatchContent(patch: StyleRulePatch | null | undefined): boolean {
   if (!patch) {
     return false;
@@ -338,6 +358,7 @@ export function hasStyleRulePatchContent(patch: StyleRulePatch | null | undefine
     || ruleSectionHasContent(patch.rhythmRules);
 }
 
+/** 构建后备风格规则补丁 */
 export function buildFallbackStyleRulePatch(
   feature: Pick<StyleExtractionFeature, "group" | "label" | "description">,
 ): StyleRulePatch {
@@ -377,6 +398,7 @@ export function buildFallbackStyleRulePatch(
   };
 }
 
+/** 解析风格特征对应的规则补丁 */
 export function resolveStyleFeatureRulePatch(
   feature: Pick<
     StyleExtractionFeature,
@@ -393,6 +415,7 @@ export function resolveStyleFeatureRulePatch(
   return buildFallbackStyleRulePatch(feature);
 }
 
+/** 合并风格规则集合 */
 export function mergeStyleRuleSet(base: StyleRuleSet, patch: StyleRulePatch): StyleRuleSet {
   return {
     narrativeRules: patch.narrativeRules
@@ -410,6 +433,7 @@ export function mergeStyleRuleSet(base: StyleRuleSet, patch: StyleRulePatch): St
   };
 }
 
+/** 从特征列表构建风格规则集合 */
 export function buildStyleRuleSetFromFeatures(
   features: Array<Pick<
     StyleProfileFeature,
@@ -433,6 +457,7 @@ export function buildStyleRuleSetFromFeatures(
   return next;
 }
 
+/** 决策风格特征的处理方式 */
 export function decideStyleFeatureDecision(
   feature: Pick<StyleExtractionFeature, "importance" | "imitationValue" | "transferability" | "fingerprintRisk">,
   presetKey: StyleExtractionPreset["key"],
@@ -463,6 +488,7 @@ export function decideStyleFeatureDecision(
   return "keep";
 }
 
+/** 构建风格提取预设 */
 export function buildStyleExtractionPreset(
   features: StyleExtractionFeature[],
   presetKey: StyleExtractionPreset["key"],
@@ -493,6 +519,7 @@ export function buildStyleExtractionPreset(
   };
 }
 
+/** 构建所有风格提取预设 */
 export function buildStyleExtractionPresets(features: StyleExtractionFeature[]): StyleExtractionPreset[] {
   return [
     buildStyleExtractionPreset(features, "imitate"),
@@ -501,6 +528,7 @@ export function buildStyleExtractionPresets(features: StyleExtractionFeature[]):
   ];
 }
 
+/** 风格模板 */
 export interface StyleTemplate {
   id: string;
   key: string;
@@ -519,6 +547,7 @@ export interface StyleTemplate {
   updatedAt: string;
 }
 
+/** 风格绑定 */
 export interface StyleBinding {
   id: string;
   styleProfileId: string;
@@ -532,6 +561,7 @@ export interface StyleBinding {
   updatedAt: string;
 }
 
+/** 编译后的风格提示块 */
 export interface CompiledStylePromptBlocks {
   context: string;
   style: string;
@@ -544,6 +574,7 @@ export interface CompiledStylePromptBlocks {
   appliedRuleIds: string[];
 }
 
+/** 风格检测违规 */
 export interface StyleDetectionViolation {
   ruleId: string;
   ruleName: string;
@@ -557,6 +588,7 @@ export interface StyleDetectionViolation {
   canAutoRewrite: boolean;
 }
 
+/** 风格检测报告 */
 export interface StyleDetectionReport {
   riskScore: number;
   summary: string;
@@ -587,6 +619,7 @@ export interface StyleRecommendationResult {
   recommendedAt: string;
 }
 
+/** 已解析的风格上下文 */
 export interface ResolvedStyleContext {
   matchedBindings: StyleBinding[];
   compiledBlocks: CompiledStylePromptBlocks | null;
@@ -601,6 +634,7 @@ export interface ResolvedStyleContext {
   sanitizedGenerationProfile?: StyleSanitizedGenerationProfile | null;
 }
 
+/** 风格清洗后的生成档案 */
 export interface StyleSanitizedGenerationProfile {
   writingGuidance: string[];
   forbiddenEntities: string[];
@@ -609,6 +643,7 @@ export interface StyleSanitizedGenerationProfile {
   strategy: "deterministic" | "llm";
 }
 
+/** 风格意图摘要 */
 export interface StyleIntentSummary {
   source: "style_profile" | "style_tone";
   styleProfileId?: string | null;
@@ -693,6 +728,7 @@ function buildAntiAiFocus(profile: Pick<StyleProfile, "antiAiRules"> | null | un
     .slice(0, 3);
 }
 
+/** 构建风格意图摘要 */
 export function buildStyleIntentSummary(input: {
   styleProfile?: Pick<
     StyleProfile,

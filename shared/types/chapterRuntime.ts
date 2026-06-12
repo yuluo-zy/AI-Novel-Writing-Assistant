@@ -14,6 +14,11 @@ import { storyWorldSliceSchema } from "./storyWorldSlice";
 import { timelineCheckResultSchema, timelineContextForChapterSchema } from "./timeline";
 import type { LLMProvider } from "./llm";
 
+/**
+ * == 章节运行时（Chapter Runtime）Schema ==
+ * 定义章节写作、审核、修复过程中的全部运行时数据结构。
+ */
+
 const llmProviderSchema = z.custom<LLMProvider>((value) => typeof value === "string" && value.trim().length > 0);
 const auditTypeSchema = z.enum(["continuity", "character", "plot", "mode_fit"]);
 const auditSeveritySchema = z.enum(["low", "medium", "high", "critical"]);
@@ -34,6 +39,7 @@ const dynamicCharacterRiskLevelSchema = z.enum(["none", "info", "warn", "high"])
 const auditModeSchema = z.enum(["light", "full", "repair_only"]);
 const contextBlockTierSchema = z.enum(["hard_required", "situational", "optional"]);
 
+/** 章节运行时请求 */
 export const chapterRuntimeRequestSchema = z.object({
   provider: llmProviderSchema.optional(),
   model: z.string().trim().optional(),
@@ -42,6 +48,7 @@ export const chapterRuntimeRequestSchema = z.object({
   taskStyleProfileId: z.string().trim().optional(),
 });
 
+/** 运行时章节信息 */
 export const runtimeChapterSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -58,6 +65,7 @@ export const runtimeChapterSchema = z.object({
   supportingContextText: z.string().default(""),
 });
 
+/** 运行时规划场景 */
 export const runtimePlanSceneSchema = z.object({
   id: z.string(),
   sortOrder: z.number().int(),
@@ -68,6 +76,7 @@ export const runtimePlanSceneSchema = z.object({
   emotionBeat: z.string().nullable().optional(),
 });
 
+/** 运行时规划 */
 export const runtimePlanSchema = z.object({
   id: z.string(),
   chapterId: z.string().nullable().optional(),
@@ -89,6 +98,7 @@ export const runtimePlanSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 运行时角色信息 */
 export const runtimeCharacterSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -114,6 +124,7 @@ export const runtimeCharacterSchema = z.object({
   presenceImpression: z.string().nullable().optional(),
 });
 
+/** 运行时创作决策 */
 export const runtimeCreativeDecisionSchema = z.object({
   id: z.string(),
   chapterId: z.string().nullable().optional(),
@@ -127,6 +138,7 @@ export const runtimeCreativeDecisionSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 运行时审计问题 */
 export const runtimeAuditIssueSchema = z.object({
   id: z.string(),
   reportId: z.string(),
@@ -141,6 +153,7 @@ export const runtimeAuditIssueSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 运行时角色状态 */
 export const runtimeCharacterStateSchema = z.object({
   characterId: z.string(),
   currentGoal: z.string().nullable().optional(),
@@ -148,12 +161,14 @@ export const runtimeCharacterStateSchema = z.object({
   summary: z.string().nullable().optional(),
 });
 
+/** 运行时关系状态 */
 export const runtimeRelationStateSchema = z.object({
   sourceCharacterId: z.string(),
   targetCharacterId: z.string(),
   summary: z.string().nullable().optional(),
 });
 
+/** 运行时信息状态 */
 export const runtimeInformationStateSchema = z.object({
   holderType: z.string(),
   holderRefId: z.string().nullable().optional(),
@@ -162,6 +177,7 @@ export const runtimeInformationStateSchema = z.object({
   summary: z.string().nullable().optional(),
 });
 
+/** 运行时伏笔状态 */
 export const runtimeForeshadowStateSchema = z.object({
   title: z.string(),
   summary: z.string().nullable().optional(),
@@ -170,6 +186,7 @@ export const runtimeForeshadowStateSchema = z.object({
   payoffChapterId: z.string().nullable().optional(),
 });
 
+/** 运行时开放式冲突 */
 export const runtimeOpenConflictSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -214,6 +231,7 @@ export const runtimePayoffLedgerRiskSignalSchema = z.object({
   stale: z.boolean().optional(),
 });
 
+/** 运行时伏笔台账条目 */
 export const runtimePayoffLedgerItemSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -249,6 +267,7 @@ export const runtimePayoffLedgerSummarySchema = z.object({
   updatedAt: z.string().nullable().optional(),
 });
 
+/** 运行时状态快照 */
 export const runtimeStateSnapshotSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -677,6 +696,7 @@ export const chapterCharacterHardFactSchema = z.object({
   prohibitions: z.array(z.string()).default([]),
 });
 
+/** 章节写作上下文 */
 export const chapterWriteContextSchema = z.object({
   bookContract: bookContractContextSchema,
   macroConstraints: macroConstraintContextSchema.nullable(),
@@ -722,6 +742,7 @@ export const chapterWriteContextSchema = z.object({
   recentScenePatterns: z.array(z.string()).default([]),
 });
 
+/** 章节审查上下文 */
 export const chapterReviewContextSchema = chapterWriteContextSchema.extend({
   structureObligations: z.array(z.string()).default([]),
   worldRules: z.array(z.string()).default([]),
@@ -735,6 +756,7 @@ export const chapterRepairIssueSchema = z.object({
   fixSuggestion: z.string(),
 });
 
+/** 章节修复上下文 */
 export const chapterRepairContextSchema = z.object({
   writeContext: chapterWriteContextSchema,
   issues: z.array(chapterRepairIssueSchema).default([]),
@@ -744,6 +766,7 @@ export const chapterRepairContextSchema = z.object({
   allowedEditBoundaries: z.array(z.string()).default([]),
 });
 
+/** 生成上下文包（运行时上下文的核心结构） */
 export const generationContextPackageSchema = z.object({
   chapter: runtimeChapterSchema,
   plan: runtimePlanSchema.nullable(),
@@ -813,6 +836,7 @@ export const chapterAcceptanceAssetSyncRecommendationSchema = z.object({
   requiresFullPayoffReconcile: z.boolean(),
 });
 
+/** 运行时审计报告 */
 export const runtimeAuditReportSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -884,6 +908,7 @@ export const runtimeSceneGenerationWithRoundsSchema = runtimeSceneGenerationResu
   roundResults: z.array(runtimeSceneRoundResultSchema).default([]),
 });
 
+/** 运行时字数控制 */
 export const runtimeLengthControlSchema = z.object({
   targetWordCount: z.number().int().positive(),
   softMinWordCount: z.number().int().positive(),
@@ -901,6 +926,7 @@ export const runtimeLengthControlSchema = z.object({
   overlengthRepairApplied: z.boolean(),
 });
 
+/** 章节运行时包（运行时核心输出结构） */
 export const chapterRuntimePackageSchema = z.object({
   novelId: z.string(),
   chapterId: z.string(),

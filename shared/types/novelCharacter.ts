@@ -1,5 +1,6 @@
 import type { LLMProvider } from "./llm";
 
+/** 角色演绎角色类型 */
 export type CharacterCastRole =
   | "protagonist"
   | "antagonist"
@@ -10,8 +11,10 @@ export type CharacterCastRole =
   | "pressure_source"
   | "catalyst";
 
+/** 角色性别 */
 export type CharacterGender = "male" | "female" | "other" | "unknown";
 
+/** 角色核心事实信息（运行时硬事实） */
 export interface CharacterHardFacts {
   identityLabel?: string | null;
   factionLabel?: string | null;
@@ -24,16 +27,26 @@ export interface CharacterHardFacts {
   prohibitionsJson?: string | null;
 }
 
+/** 小说角色 */
 export interface Character {
   id: string;
+  /** 角色名称 */
   name: string;
+  /** 角色 */
   role: string;
+  /** 性别 */
   gender?: CharacterGender | null;
+  /** 演绎角色 */
   castRole?: CharacterCastRole | null;
+  /** 故事功能 */
   storyFunction?: string | null;
+  /** 与主角关系 */
   relationToProtagonist?: string | null;
+  /** 性格 */
   personality?: string | null;
+  /** 背景 */
   background?: string | null;
+  /** 成长弧 */
   development?: string | null;
   identityLabel?: string | null;
   factionLabel?: string | null;
@@ -44,33 +57,59 @@ export interface Character {
   availability?: string | null;
   prohibitions?: string[] | null;
   prohibitionsJson?: string | null;
+  /** 外在目标 */
   outerGoal?: string | null;
+  /** 内在需求 */
   innerNeed?: string | null;
+  /** 恐惧 */
   fear?: string | null;
+  /** 创伤 */
   wound?: string | null;
+  /** 错误信念 */
   misbelief?: string | null;
+  /** 秘密 */
   secret?: string | null;
+  /** 道德底线 */
   moralLine?: string | null;
+  /** 第一印象 */
   firstImpression?: string | null;
+  /** 外貌 */
   appearance?: string | null;
+  /** 体格 */
   physique?: string | null;
+  /** 着装风格 */
   attireStyle?: string | null;
+  /** 标志性细节 */
   signatureDetail?: string | null;
+  /** 声线 */
   voiceTexture?: string | null;
+  /** 存在感印象 */
   presenceImpression?: string | null;
+  /** 弧线起点 */
   arcStart?: string | null;
+  /** 弧线中点 */
   arcMidpoint?: string | null;
+  /** 弧线高潮 */
   arcClimax?: string | null;
+  /** 弧线终点 */
   arcEnd?: string | null;
+  /** 当前状态 */
   currentState?: string | null;
+  /** 当前目标 */
   currentGoal?: string | null;
+  /** 最后进化时间 */
   lastEvolvedAt?: string | null;
+  /** 所属小说 ID */
   novelId: string;
+  /** 基础角色 ID */
   baseCharacterId?: string | null;
+  /** 创建时间 */
   createdAt: string;
+  /** 更新时间 */
   updatedAt: string;
 }
 
+/** 角色可见形象字段 */
 export type CharacterVisibleProfileField =
   | "appearance"
   | "physique"
@@ -81,6 +120,7 @@ export type CharacterVisibleProfileField =
 
 export type CharacterVisibleProfileFields = Partial<Record<CharacterVisibleProfileField, string | null>>;
 
+/** 角色可见形象建议 */
 export interface CharacterVisibleProfileSuggestion {
   characterId: string;
   characterName: string;
@@ -92,6 +132,7 @@ export interface CharacterVisibleProfileSuggestion {
   allowsOverwriteExisting?: boolean;
 }
 
+/** 角色可见形象批量结果 */
 export interface CharacterVisibleProfileBatchResult {
   novelId: string;
   results: CharacterVisibleProfileSuggestion[];
@@ -102,6 +143,7 @@ export interface CharacterVisibleProfileBatchResult {
   }>;
 }
 
+/** 角色可见形象应用结果 */
 export interface CharacterVisibleProfileApplyResult {
   character: Character;
   appliedFields: CharacterVisibleProfileField[];
@@ -109,6 +151,7 @@ export interface CharacterVisibleProfileApplyResult {
   warnings: string[];
 }
 
+/** 基础角色（角色库） */
 export interface BaseCharacter {
   id: string;
   name: string;
@@ -126,6 +169,7 @@ export interface BaseCharacter {
   updatedAt: string;
 }
 
+/** 角色关系 */
 export interface CharacterRelation {
   id: string;
   novelId: string;
@@ -148,6 +192,7 @@ export interface CharacterRelation {
   updatedAt: string;
 }
 
+/** 角色阵容选项成员 */
 export interface CharacterCastOptionMember {
   id: string;
   optionId: string;
@@ -183,6 +228,7 @@ export interface CharacterCastOptionMember {
   updatedAt: string;
 }
 
+/** 角色阵容选项关系 */
 export interface CharacterCastOptionRelation {
   id: string;
   optionId: string;
@@ -199,6 +245,7 @@ export interface CharacterCastOptionRelation {
   updatedAt: string;
 }
 
+/** 角色阵容质量问题编码 */
 export type CharacterCastQualityIssueCode =
   | "abstract_name"
   | "english_residue"
@@ -208,6 +255,7 @@ export type CharacterCastQualityIssueCode =
   | "missing_hidden_identity_anchor"
   | "missing_gender";
 
+/** 角色阵容质量问题 */
 export interface CharacterCastQualityIssue {
   code: CharacterCastQualityIssueCode;
   optionIndex?: number;
@@ -216,12 +264,14 @@ export interface CharacterCastQualityIssue {
   memberName?: string;
 }
 
+/** 角色阵容质量评估 */
 export interface CharacterCastQualityAssessment {
   autoApplicable: boolean;
   blockingReasons: string[];
   issues: CharacterCastQualityIssue[];
 }
 
+/** 角色阵容选项 */
 export interface CharacterCastOption {
   id: string;
   novelId: string;
@@ -238,6 +288,7 @@ export interface CharacterCastOption {
   updatedAt: string;
 }
 
+/** 角色阵容应用结果 */
 export interface CharacterCastApplyResult {
   optionId: string;
   createdCount: number;

@@ -2,15 +2,21 @@ import type { LLMProvider } from "./llm";
 import type { NovelWorkflowStage } from "./novelWorkflow";
 import type { DirectorCircuitBreakerState, DirectorQualityLoopBudgetNextAction } from "./novelDirector";
 
+/**
+ * == 导演运行时（Director Runtime）类型 ==
+ * AI 自动导演系统在运行过程中的全部状态、投影和事件类型。
+ */
+
+/** 导演策略模式 */
 export const DIRECTOR_POLICY_MODES = [
   "suggest_only",
   "run_next_step",
   "run_until_gate",
   "auto_safe_scope",
 ] as const;
-
 export type DirectorPolicyMode = typeof DIRECTOR_POLICY_MODES[number];
 
+/** 导演产物类型 */
 export const DIRECTOR_ARTIFACT_TYPES = [
   "book_contract",
   "story_macro",
@@ -28,13 +34,10 @@ export const DIRECTOR_ARTIFACT_TYPES = [
   "continuity_state",
   "rolling_window_review",
 ] as const;
-
 export type DirectorArtifactType = typeof DIRECTOR_ARTIFACT_TYPES[number];
 
 export type DirectorArtifactTargetType = "novel" | "volume" | "chapter" | "global";
-
 export type DirectorArtifactStatus = "draft" | "active" | "superseded" | "stale" | "rejected";
-
 export type DirectorArtifactSource =
   | "ai_generated"
   | "user_edited"
@@ -42,6 +45,7 @@ export type DirectorArtifactSource =
   | "imported"
   | "backfilled";
 
+/** 导演产物引用 */
 export interface DirectorArtifactRef {
   id: string;
   novelId: string;
@@ -119,6 +123,7 @@ export type DirectorStepRunStatus =
   | "waiting_approval"
   | "blocked_scope";
 
+/** 导演步骤运行记录 */
 export interface DirectorStepRun {
   idempotencyKey: string;
   nodeKey: string;
@@ -138,6 +143,7 @@ export type DirectorUsageAttributionStatus =
   | "task_only"
   | "unattributed";
 
+/** 导演 LLM 用量摘要 */
 export interface DirectorLlmUsageSummary {
   llmCallCount: number;
   promptTokens: number;
@@ -189,6 +195,7 @@ export interface DirectorPromptUsageSummary extends DirectorLlmUsageSummary {
   attributionStatus: DirectorUsageAttributionStatus | string;
 }
 
+/** 导演节点显示标签映射表 */
 const DIRECTOR_NODE_DISPLAY_LABELS: Record<string, string> = {
   candidate_generation: "生成书级方向",
   candidate_refine: "细化书级方向",
@@ -259,6 +266,7 @@ function looksLikeDirectorInternalKey(value: string): boolean {
   return /^[a-z][a-z0-9]*(?:[._:][a-z0-9]+)+$/.test(value);
 }
 
+/** 获取导演节点展示标签 */
 export function getDirectorNodeDisplayLabel(input: {
   label?: string | null;
   nodeKey?: string | null;
@@ -280,6 +288,7 @@ export function getDirectorNodeDisplayLabel(input: {
   return input.fallback ?? "AI 推进步骤";
 }
 
+/** 导演事件类型 */
 export type DirectorEventType =
   | "run_started"
   | "run_resumed"
@@ -300,6 +309,7 @@ export type DirectorEventType =
   | "circuit_breaker_reset"
   | "continue_with_risk";
 
+/** 导演事件 */
 export interface DirectorEvent {
   eventId: string;
   type: DirectorEventType;
@@ -315,6 +325,7 @@ export interface DirectorEvent {
   metadata?: Record<string, unknown>;
 }
 
+/** 导演策略决策 */
 export interface DirectorPolicyDecision {
   canRun: boolean;
   requiresApproval: boolean;
@@ -338,6 +349,7 @@ export interface DirectorPolicyDecision {
   onQualityFailure: "repair_once" | "pause_for_manual" | "continue_with_risk" | "block_scope";
 }
 
+/** 导演质量门禁结果 */
 export type DirectorQualityGateResult =
   | { status: "passed" }
   | { status: "repairable"; repairPlanId: string; autoRetryAllowed: true; affectedScope?: string | null }
@@ -345,6 +357,7 @@ export type DirectorQualityGateResult =
   | { status: "continue_with_risk"; riskIds: string[]; affectedScope: string }
   | { status: "blocked_scope"; blockedScope: string; reason: string };
 
+/** 导演运行时策略快照 */
 export interface DirectorRuntimePolicySnapshot {
   mode: DirectorPolicyMode;
   mayOverwriteUserContent: boolean;
@@ -499,6 +512,7 @@ export interface DirectorTaskFactSummary {
   steps: DirectorTaskFactSummaryStep[];
 }
 
+/** 章节执行进度阶段 */
 export type ChapterExecutionProgressStage =
   | "execution_contract_ready"
   | "context_package_ready"
@@ -541,6 +555,7 @@ export interface DirectorChapterExecutionProgressSummary {
   chapters?: DirectorChapterExecutionProgressItem[];
 }
 
+/** 导演运行时投影 */
 export interface DirectorRuntimeProjection {
   runId: string;
   novelId?: string | null;
@@ -785,6 +800,7 @@ export interface DirectorWorkerHealthSummary {
   lastCommandAt?: string | null;
 }
 
+/** 书籍自动化投影 */
 export interface DirectorBookAutomationProjection {
   novelId: string;
   focusNovel: DirectorBookAutomationFocusNovel;
@@ -1042,6 +1058,7 @@ export interface DirectorTaskFactInspectionResponse {
   inspection: DirectorTaskFactInspection | null;
 }
 
+/** 导演运行命令类型 */
 export const DIRECTOR_RUN_COMMAND_TYPES = [
   "generate_candidates",
   "refine_candidates",
@@ -1059,9 +1076,9 @@ export const DIRECTOR_RUN_COMMAND_TYPES = [
   "repair_chapter_titles",
   "cancel",
 ] as const;
-
 export type DirectorRunCommandType = typeof DIRECTOR_RUN_COMMAND_TYPES[number];
 
+/** 导演运行命令状态 */
 export const DIRECTOR_RUN_COMMAND_STATUSES = [
   "queued",
   "leased",
@@ -1071,7 +1088,6 @@ export const DIRECTOR_RUN_COMMAND_STATUSES = [
   "cancelled",
   "stale",
 ] as const;
-
 export type DirectorRunCommandStatus = typeof DIRECTOR_RUN_COMMAND_STATUSES[number];
 
 export interface DirectorCommandAcceptedResponse {
@@ -1249,6 +1265,7 @@ export interface DirectorWorkspaceAnalysis {
   } | null;
 }
 
+/** 导演运行时快照 */
 export interface DirectorRuntimeSnapshot {
   schemaVersion: 1;
   runId: string;

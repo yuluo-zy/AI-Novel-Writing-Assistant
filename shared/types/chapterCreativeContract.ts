@@ -1,3 +1,7 @@
+/**
+ * 系统审计标记列表，用于过滤不应作为创作承诺的审计项。
+ * 这些标记来自系统内部的质量检查，不应被当作"必须推进"的创作条款。
+ */
 const SYSTEM_AUDIT_MARKERS = [
   "acceptance_gate_unavailable",
   "missing_must_hit",
@@ -16,6 +20,7 @@ function normalizeContractMarker(value: string): string {
     .toLowerCase();
 }
 
+/** 判断一个值是否为系统审计合同项 */
 export function isSystemAuditContractItem(value: unknown): boolean {
   if (typeof value !== "string") {
     return false;
@@ -27,6 +32,12 @@ export function isSystemAuditContractItem(value: unknown): boolean {
   return SYSTEM_AUDIT_MARKERS.some((marker) => normalized.includes(marker));
 }
 
+/**
+ * 清洗创作必须推进项列表
+ * - 去除空串和纯空白项
+ * - 去除系统审计标记项
+ * - 去重
+ */
 export function sanitizeCreativeMustAdvanceItems(items: string[]): string[] {
   const seen = new Set<string>();
   const result: string[] = [];

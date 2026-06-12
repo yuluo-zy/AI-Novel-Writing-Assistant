@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+/**
+ * == 时间线（Timeline）Schema ==
+ * 管理故事世界的时间线、事件、钩子和约束。
+ */
+
+/** 时间线事件状态 */
 export const timelineEventStatusSchema = z.enum([
   "planned",
   "occurred",
@@ -9,6 +15,7 @@ export const timelineEventStatusSchema = z.enum([
   "superseded",
 ]);
 
+/** 时间线事件类型 */
 export const timelineEventTypeSchema = z.enum([
   "plot",
   "relationship",
@@ -23,6 +30,7 @@ export const timelineEventTypeSchema = z.enum([
   "world_state",
 ]);
 
+/** 时间线可见性 */
 export const timelineVisibilitySchema = z.enum([
   "reader_known",
   "protagonist_known",
@@ -30,6 +38,7 @@ export const timelineVisibilitySchema = z.enum([
   "hidden_truth",
 ]);
 
+/** 时间线事件来源 */
 export const timelineEventSourceSchema = z.enum([
   "outline",
   "chapter_plan",
@@ -39,6 +48,7 @@ export const timelineEventSourceSchema = z.enum([
   "imported",
 ]);
 
+/** 时间线钩子状态 */
 export const timelineHookStatusSchema = z.enum([
   "open",
   "addressed",
@@ -47,12 +57,14 @@ export const timelineHookStatusSchema = z.enum([
   "expired",
 ]);
 
+/** 时间线钩子解决模式 */
 export const timelineHookResolveModeSchema = z.enum([
   "immediate",
   "short_arc",
   "long_arc",
 ]);
 
+/** 时间线钩子优先级 */
 export const timelineHookPrioritySchema = z.enum([
   "low",
   "medium",
@@ -60,6 +72,7 @@ export const timelineHookPrioritySchema = z.enum([
   "critical",
 ]);
 
+/** 时间线钩子草稿 */
 export const timelineHookDraftSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -68,6 +81,7 @@ export const timelineHookDraftSchema = z.object({
   blocking: z.boolean().default(false),
 });
 
+/** 时间线状态目标类型 */
 export const timelineStateTargetTypeSchema = z.enum([
   "character",
   "location",
@@ -102,6 +116,7 @@ const optionalTimelineStateValueSchema = z.preprocess((value) => {
   return normalizeTimelineStateValue(value);
 }, z.string().trim().min(1).optional());
 
+/** 时间线状态变更 */
 export const timelineStateChangeSchema = z.object({
   targetType: timelineStateTargetTypeSchema,
   targetId: z.string(),
@@ -111,6 +126,7 @@ export const timelineStateChangeSchema = z.object({
   certainty: z.enum(["confirmed", "likely", "rumored", "hidden"]),
 });
 
+/** 故事时间线事件 */
 export const storyTimelineEventSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -137,6 +153,7 @@ export const storyTimelineEventSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 章节时间锚点 */
 export const chapterTimeAnchorSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -154,6 +171,7 @@ export const chapterTimeAnchorSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 时间线钩子 */
 export const timelineHookSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -174,6 +192,7 @@ export const timelineHookSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 时间线约束类型 */
 export const timelineConstraintTypeSchema = z.enum([
   "must_include",
   "must_continue",
@@ -185,6 +204,7 @@ export const timelineConstraintTypeSchema = z.enum([
   "must_not_repeat_event",
 ]);
 
+/** 时间线约束严重程度 */
 export const timelineConstraintSeveritySchema = z.enum([
   "info",
   "warning",
@@ -192,6 +212,7 @@ export const timelineConstraintSeveritySchema = z.enum([
   "blocking",
 ]);
 
+/** 时间线约束 */
 export const timelineConstraintSchema = z.object({
   id: z.string(),
   novelId: z.string(),
@@ -208,6 +229,7 @@ export const timelineConstraintSchema = z.object({
   updatedAt: z.string(),
 });
 
+/** 章节时间线上下文（用于写作提示） */
 export const timelineContextForChapterSchema = z.object({
   currentChapterIndex: z.number().int(),
   currentTime: z.object({
@@ -271,6 +293,7 @@ export const timelineContextForChapterSchema = z.object({
   knownStateChanges: z.array(timelineStateChangeSchema).default([]),
 });
 
+/** 提取的时间线事件 */
 export const extractedTimelineEventSchema = z.object({
   title: z.string(),
   summary: z.string(),
@@ -284,6 +307,7 @@ export const extractedTimelineEventSchema = z.object({
   matchedPlannedEventIds: z.array(z.string()).default([]),
 });
 
+/** 时间线问题类型 */
 export const timelineIssueTypeSchema = z.enum([
   "future_event_leak",
   "unresolved_previous_hook",
@@ -296,6 +320,7 @@ export const timelineIssueTypeSchema = z.enum([
   "unclear_time_anchor",
 ]);
 
+/** 时间线问题严重程度 */
 export const timelineIssueSeveritySchema = z.enum([
   "info",
   "warning",
@@ -303,6 +328,7 @@ export const timelineIssueSeveritySchema = z.enum([
   "blocking",
 ]);
 
+/** 时间线问题 */
 export const timelineIssueSchema = z.object({
   type: timelineIssueTypeSchema,
   severity: timelineIssueSeveritySchema,
@@ -313,12 +339,14 @@ export const timelineIssueSchema = z.object({
   relatedHookIds: z.array(z.string()).default([]),
 });
 
+/** 时间线检查结果 */
 export const timelineCheckResultSchema = z.object({
   status: z.enum(["passed", "warning", "failed"]),
   score: z.number().min(0).max(1),
   issues: z.array(timelineIssueSchema).default([]),
 });
 
+/** 时间线检查报告 */
 export const timelineCheckReportSchema = z.object({
   id: z.string(),
   novelId: z.string(),

@@ -7,6 +7,10 @@ import type {
   AutoDirectorValidationRequiredAction,
 } from "./autoDirectorValidation";
 
+/**
+ * 自动导演跟进原因
+ * 描述自动导演流程为何进入跟进状态
+ */
 export const AUTO_DIRECTOR_FOLLOW_UP_REASONS = [
   "manual_recovery_required",
   "runtime_failed",
@@ -23,10 +27,13 @@ export const AUTO_DIRECTOR_FOLLOW_UP_REASONS = [
 
 export type AutoDirectorFollowUpReason = (typeof AUTO_DIRECTOR_FOLLOW_UP_REASONS)[number];
 
+/** 自动导演跟进优先级 */
 export type AutoDirectorFollowUpPriority = "P0" | "P1" | "P2";
 
+/** 自动导演操作风险等级 */
 export type AutoDirectorActionRiskLevel = "low" | "medium" | "high";
 
+/** 自动导演变更型操作编码 */
 export type AutoDirectorMutationActionCode =
   | "continue_auto_execution"
   | "continue_generic"
@@ -35,30 +42,42 @@ export type AutoDirectorMutationActionCode =
   | "retry_with_route_model"
   | "safe_fix_validation";
 
+/** 自动导演导航型操作编码 */
 export type AutoDirectorNavigationActionCode =
   | "go_replan"
   | "go_candidate_selection"
   | "open_detail"
   | "open_follow_up_center";
 
+/** 自动导演操作编码联合 */
 export type AutoDirectorActionCode = AutoDirectorMutationActionCode | AutoDirectorNavigationActionCode;
 
+/** 自动导演操作 */
 export interface AutoDirectorAction {
   code: AutoDirectorActionCode;
+  /** 操作种类（变更 / 导航） */
   kind: "mutation" | "navigation";
+  /** 操作标签 */
   label: string;
+  /** 风险等级 */
   riskLevel: AutoDirectorActionRiskLevel;
+  /** 是否需要用户确认 */
   requiresConfirm: boolean;
+  /** 关联的执行器操作编码 */
   executorActionCode?: AutoDirectorMutationActionCode;
+  /** 目标 URL */
   targetUrl?: string;
+  /** 深层链接 */
   deepLink?: string;
 }
 
+/** 自动导演渠道能力 */
 export interface AutoDirectorChannelCapabilities {
   dingtalk: boolean;
   wecom: boolean;
 }
 
+/** 跟进原因解析器输入 */
 export interface AutoDirectorFollowUpResolverInput {
   status: TaskStatus;
   checkpointType?: NovelWorkflowCheckpoint | null;
@@ -68,6 +87,7 @@ export interface AutoDirectorFollowUpResolverInput {
   validationResult?: AutoDirectorValidationResult | null;
 }
 
+/** 已解析的跟进原因 */
 export interface AutoDirectorResolvedFollowUpReason {
   reason: AutoDirectorFollowUpReason;
   reasonLabel: string;
@@ -78,14 +98,17 @@ export interface AutoDirectorResolvedFollowUpReason {
   channelCapabilities: AutoDirectorChannelCapabilities;
 }
 
+/** 自动导演渠道类型 */
 export const AUTO_DIRECTOR_CHANNEL_TYPES = ["dingtalk", "wecom"] as const;
 
 export type AutoDirectorChannelType = (typeof AUTO_DIRECTOR_CHANNEL_TYPES)[number];
 
+/** 按原因统计的计数器 */
 export type AutoDirectorCountersByReason = Record<AutoDirectorFollowUpReason, number>;
-
+/** 按区间统计的计数器 */
 export type AutoDirectorCountersBySection = Record<AutoDirectorFollowUpSection, number>;
 
+/** 自动导演跟进验证摘要 */
 export interface AutoDirectorFollowUpValidationSummary {
   blockingReasons: string[];
   warnings: string[];
@@ -94,10 +117,13 @@ export interface AutoDirectorFollowUpValidationSummary {
   nextAction: string | null;
 }
 
+/** 自动导演跟进项 */
 export interface AutoDirectorFollowUpItem {
+  /** 项目类型 */
   itemType: "task" | "auto_approval_record";
+  /** 导演任务 ID */
   directorTaskId: string;
-  /** @deprecated Use directorTaskId for auto director follow-up state. */
+  /** @deprecated 使用 directorTaskId */
   taskId: string;
   autoApprovalRecordId?: string;
   novelId: string | null;
@@ -125,6 +151,7 @@ export interface AutoDirectorFollowUpItem {
   updatedAt: string;
 }
 
+/** 自动导演跟进里程碑 */
 export interface AutoDirectorFollowUpMilestone {
   label: string;
   at: string;
@@ -132,9 +159,10 @@ export interface AutoDirectorFollowUpMilestone {
   summary?: string | null;
 }
 
+/** 自动导演跟进详情 */
 export interface AutoDirectorFollowUpDetail {
   directorTaskId: string;
-  /** @deprecated Use directorTaskId for auto director follow-up state. */
+  /** @deprecated 使用 directorTaskId */
   taskId: string;
   reasonLabel: string;
   priority: AutoDirectorFollowUpPriority;
@@ -154,17 +182,20 @@ export interface AutoDirectorFollowUpDetail {
   task: UnifiedTaskDetail;
 }
 
+/** 自动导演跟进总览 */
 export interface AutoDirectorFollowUpOverview {
   totalCount: number;
   countersByReason: AutoDirectorCountersByReason;
   countersBySection: AutoDirectorCountersBySection;
 }
 
+/** 自动导演跟进摘要计数器 */
 export interface AutoDirectorFollowUpSummaryCounters {
   recoveredToday: number;
   completedToday: number;
 }
 
+/** 自动导演跟进可用筛选 */
 export interface AutoDirectorFollowUpAvailableFilters {
   sections: AutoDirectorFollowUpSection[];
   reasons: AutoDirectorFollowUpReason[];
@@ -172,12 +203,14 @@ export interface AutoDirectorFollowUpAvailableFilters {
   channelTypes: AutoDirectorChannelType[];
 }
 
+/** 自动导演跟进分页 */
 export interface AutoDirectorFollowUpPagination {
   page: number;
   pageSize: number;
   total: number;
 }
 
+/** 自动导演跟进列表响应 */
 export interface AutoDirectorFollowUpListResponse {
   items: AutoDirectorFollowUpItem[];
   countersByReason: AutoDirectorCountersByReason;
@@ -187,6 +220,7 @@ export interface AutoDirectorFollowUpListResponse {
   pagination: AutoDirectorFollowUpPagination;
 }
 
+/** 自动导演跟进列表查询输入 */
 export interface AutoDirectorFollowUpListInput {
   section?: AutoDirectorFollowUpSection;
   reason?: AutoDirectorFollowUpReason;
@@ -198,9 +232,10 @@ export interface AutoDirectorFollowUpListInput {
   pageSize?: number;
 }
 
+/** 自动导演操作请求 */
 export interface AutoDirectorActionRequest {
   directorTaskId?: string;
-  /** @deprecated Use directorTaskId when the caller is auto-director-specific. */
+  /** @deprecated 使用 directorTaskId */
   taskId: string;
   actionCode: AutoDirectorMutationActionCode;
   source: "web" | "dingtalk" | "wecom";
@@ -209,6 +244,7 @@ export interface AutoDirectorActionRequest {
   metadata?: Record<string, unknown>;
 }
 
+/** 自动导演操作执行结果编码 */
 export const AUTO_DIRECTOR_ACTION_RESULT_CODES = [
   "executed",
   "already_processed",
@@ -219,9 +255,10 @@ export const AUTO_DIRECTOR_ACTION_RESULT_CODES = [
 
 export type AutoDirectorActionResultCode = (typeof AUTO_DIRECTOR_ACTION_RESULT_CODES)[number];
 
+/** 自动导演操作执行结果 */
 export interface AutoDirectorActionExecutionResult {
   directorTaskId?: string;
-  /** @deprecated Use directorTaskId when present. */
+  /** @deprecated 使用 directorTaskId */
   taskId: string;
   actionCode: AutoDirectorMutationActionCode;
   code: AutoDirectorActionResultCode;
@@ -229,6 +266,7 @@ export interface AutoDirectorActionExecutionResult {
   task?: UnifiedTaskDetail | null;
 }
 
+/** 自动导演批量操作请求 */
 export interface AutoDirectorBatchActionRequest {
   actionCode: AutoDirectorMutationActionCode;
   taskIds: string[];
@@ -238,6 +276,7 @@ export interface AutoDirectorBatchActionRequest {
   metadata?: Record<string, unknown>;
 }
 
+/** 自动导演批量操作结果编码 */
 export const AUTO_DIRECTOR_BATCH_RESULT_CODES = [
   "success",
   "partial_success",
@@ -247,6 +286,7 @@ export const AUTO_DIRECTOR_BATCH_RESULT_CODES = [
 
 export type AutoDirectorBatchResultCode = (typeof AUTO_DIRECTOR_BATCH_RESULT_CODES)[number];
 
+/** 自动导演批量操作执行结果 */
 export interface AutoDirectorBatchActionExecutionResult {
   code: AutoDirectorBatchResultCode;
   successCount: number;
@@ -255,6 +295,7 @@ export interface AutoDirectorBatchActionExecutionResult {
   itemResults: AutoDirectorActionExecutionResult[];
 }
 
+/** 自动导演事件类型 */
 export const AUTO_DIRECTOR_EVENT_TYPES = [
   "auto_director.approval_required",
   "auto_director.auto_approved",
@@ -266,11 +307,12 @@ export const AUTO_DIRECTOR_EVENT_TYPES = [
 
 export type AutoDirectorEventType = (typeof AUTO_DIRECTOR_EVENT_TYPES)[number];
 
+/** 自动导演事件 */
 export interface AutoDirectorEvent {
   eventId: string;
   eventType: AutoDirectorEventType;
   directorTaskId?: string;
-  /** @deprecated Use directorTaskId when present. */
+  /** @deprecated 使用 directorTaskId */
   taskId: string;
   novelId: string | null;
   reason: AutoDirectorFollowUpReason | null;
@@ -282,12 +324,14 @@ export interface AutoDirectorEvent {
   occurredAt: string;
 }
 
+/** 自动导演渠道操作回调 */
 export interface AutoDirectorChannelActionCallback {
   endpoint: string;
   token: string;
   callbackId: string;
 }
 
+/** 自动导演渠道操作 */
 export interface AutoDirectorChannelAction {
   actionCode: AutoDirectorActionCode;
   label: string;
@@ -296,6 +340,7 @@ export interface AutoDirectorChannelAction {
   url?: string;
 }
 
+/** 自动导演渠道卡片负载 */
 export interface AutoDirectorChannelCardPayload {
   title: string;
   summary: string;
@@ -305,13 +350,14 @@ export interface AutoDirectorChannelCardPayload {
   actions: AutoDirectorChannelAction[];
 }
 
+/** 自动导演渠道通知负载 */
 export interface AutoDirectorChannelNotificationPayload {
   channelType: AutoDirectorChannelType;
   event?: AutoDirectorEvent;
   card?: AutoDirectorChannelCardPayload;
   task?: {
     directorTaskId?: string;
-    /** @deprecated Use directorTaskId when present. */
+    /** @deprecated 使用 directorTaskId */
     taskId: string;
     novelId: string | null;
     novelTitle: string;
@@ -324,6 +370,7 @@ export interface AutoDirectorChannelNotificationPayload {
   };
 }
 
+/** 自动导演通知状态 */
 export const AUTO_DIRECTOR_NOTIFICATION_STATUSES = [
   "pending",
   "delivered",
@@ -332,6 +379,7 @@ export const AUTO_DIRECTOR_NOTIFICATION_STATUSES = [
 
 export type AutoDirectorNotificationStatus = (typeof AUTO_DIRECTOR_NOTIFICATION_STATUSES)[number];
 
+/** 自动导演渠道投递状态 */
 export interface AutoDirectorChannelDeliveryStatus {
   channelType: AutoDirectorChannelType;
   status: AutoDirectorNotificationStatus;
